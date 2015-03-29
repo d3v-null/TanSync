@@ -39,7 +39,7 @@ class TanSync_Settings {
 	public function __construct ( $parent ) {
 		$this->parent = $parent;
 
-		$this->base = 'wpt_';
+		$this->base = 'tsync_';
 
 		// Initialise settings
 		add_action( 'init', array( $this, 'init_settings' ), 11 );
@@ -108,8 +108,8 @@ class TanSync_Settings {
 	private function settings_fields () {
 
 		$settings['User Fields'] = array(
-			'title'					=> __( 'Standard', 'tansync' ),
-			'description'			=> __( 'These are fairly standard form input fields.', 'tansync' ),
+			'title'					=> __( 'Additional User Fields', 'tansync' ),
+			'description'			=> __( 'Describes the fields added to the user profile screens', 'tansync' ),
 			'fields'				=> array(
 			// 	array(
 			// 		'id' 			=> 'text_field',
@@ -206,12 +206,28 @@ class TanSync_Settings {
 			// 	'default'		=> array( 'linux' )
 			// )
 				array(
-					'id' 			=> 'extra_user_fields',
-					'label'			=> __( 'Additional User Fields' , 'tansync' ),
+					'id' 			=> 'extra_user_profile_fields',
+					'label'			=> __( 'Additional User Profile Fields' , 'tansync' ),
 					'description'	=> __( 'Enter additional User fields in JSON format', 'tansync' ),
 					'type'			=> 'textarea',
-					'default'		=> "['field_id':{'label':'Field Label', 'required':'True', 'type':'text'}]",
-					'placeholder'	=> __( 'Placeholder text for this textarea', 'tansync' )
+					'default'		=> '',
+					'placeholder'	=> __( '{"field_id_1":"Field Label 1", "field_id_2":"Field Label 2"', 'tansync' )
+				),	
+				array(
+					'id'			=> 'remove_user_profile_fields',
+					'label'			=> __( 'Remove User Profile Fields', 'tansync'),
+					'description'	=> __( 'Enter fields to remove from the user profile in JSON format', 'tansync'),
+					'type'			=> 'textarea',
+					'default'		=> '',
+					'placeholder'	=> __( '["field_id_1", "field_id_2"]', 'tansync' )
+				),
+				array(
+					'id' 			=> 'extra_user_custom_fields',
+					'label'			=> __( 'Additional Custom User Fields' , 'tansync' ),
+					'description'	=> __( 'Enter additional User fields in JSON format', 'tansync' ),
+					'type'			=> 'textarea',
+					'default'		=> '{"field_id_1":{"label":"Field Label 1"}, "field_id_2":{"label":"Field Label 1"}}',
+					'placeholder'	=> __( '{"field_id_1":{"label":"Field Label 1"}, "field_id_2":{"label":"Field Label 1"}}', 'tansync' )
 				),			
 			)
 		);
@@ -370,6 +386,18 @@ class TanSync_Settings {
 		}
 		return self::$_instance;
 	} // End instance()
+
+	/**
+	 * gets the specified option
+	 */
+	public function get_option( $option_slug ) {
+		// if(WP_DEBUG) error_log("getting option $option_slug");
+		if ( is_string($this->base) and is_string($option_slug) ) {
+			return get_option( $this->base . $option_slug );
+		} else {
+			return null;
+		}
+	}
 
 	/**
 	 * Cloning is forbidden.

@@ -112,6 +112,11 @@ class TanSync {
 		// Handle localisation
 		$this->load_plugin_textdomain();
 		add_action( 'init', array( $this, 'load_localisation' ), 0 );
+
+		// Add Actions and Filters
+		$this->add_actions_filters();
+
+
 	} // End __construct ()
 
 	/**
@@ -271,5 +276,52 @@ class TanSync {
 	private function _log_version_number () {
 		update_option( $this->_token . '_version', $this->_version );
 	} // End _log_version_number ()
+
+// DERWENT
+
+	public function modify_contact_methods($profile_fields) {
+
+		$extra_fields = ($this->settings->get_option('extra_user_profile_fields'));
+		if(WP_DEBUG) {
+			error_log("Extra Profile Fields: ".serialize($extra_fields));
+		}
+		if($extra_fields){
+			foreach (json_decode($extra_fields) as $field_slug => $field_label) {
+				$label = $field_label?$field_label:$field_slug;
+				if(WP_DEBUG) {
+					error_log("$field_slug: $label");
+				}
+				$profile_fields[$field_slug] = $field_label;
+			}
+		}
+
+		$remove_fields = ($this->settings->get_option('remove_user_profile_fields'));
+		if(WP_DEBUG) {
+			error_log("Remove Profile Fields: ".serialize($remove_fields));
+		}
+		if($remove_fields){
+			foreach (json_decode($remove_fields) as $field_slug) {
+				unset($profile_fields[$field_slug]);
+			}
+		}
+
+		// // Add new fields
+		// $profile_fields['twitter'] = 'Twitter Username';
+		// $profile_fields['facebook'] = 'Facebook URL';
+		// $profile_fields['gplus'] = 'Google+ URL';
+		// unset($profile_fields['aim']);
+
+		return $profile_fields;
+	}
+
+	/**
+	 * Adds Custom Actions and Filters 
+	 */
+	private function add_actions_filters () {
+		add_filter('user_contactmethods', array($this, 'modify_contact_methods'));
+
+	} 
+
+
 
 }
