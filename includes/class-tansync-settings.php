@@ -108,9 +108,9 @@ class TanSync_Settings {
 	private function settings_fields () {
 
 		$settings['User Fields'] = array(
-			'title'					=> __( 'Additional User Fields', 'tansync' ),
-			'description'			=> __( 'Describes the fields added to the user profile screens', 'tansync' ),
-			'fields'				=> array(
+			'title'				=> __( 'Additional User Fields', 'tansync' ),
+			'description'		=> __( 'Describes the fields added to the user profile screens', 'tansync' ),
+			'fields'			=> array(
 			// 	array(
 			// 		'id' 			=> 'text_field',
 			// 		'label'			=> __( 'Some Text' , 'tansync' ),
@@ -233,17 +233,32 @@ class TanSync_Settings {
 		);
 
 		$settings['Sync'] = array(
-			'title'					=> __( 'Sync Settings', 'tansync' ),
-			'description'			=> __( 'These are some extra input fields that maybe aren\'t as common as the others.', 'tansync' ),
-			'fields'				=> array(
-			// 	array(
-			// 		'id' 			=> 'text_field',
-			// 		'label'			=> __( 'Some Text' , 'tansync' ),
-			// 		'description'	=> __( 'This is a standard text field.', 'tansync' ),
-			// 		'type'			=> 'text',
-			// 		'default'		=> '',
-			// 		'placeholder'	=> __( 'Placeholder text', 'tansync' )
-			// 	),
+			'title'				=> __( 'Sync Settings', 'tansync' ),
+			'description'		=> __( 'These are some extra input fields that maybe aren\'t as common as the others.', 'tansync' ),
+			'fields'			=> array(
+				array(
+					'id' 			=> 'sync_mod_settings',
+					'label'			=> __( 'Read and Write Settings for Synchrnoised Fields' , 'tansync' ),
+					'description'	=> __( 'Enter user fields that are read from external source and whether this field is modified by WordPress', 'tansync' ),
+					'type'			=> 'textarea',
+					'default'		=> '',
+					'placeholder'	=> __( '{"field_id_1":{"write":1, "external_fieldname":"external_fieldname_1", "display_profile":1}, "field_id_2":{}}', 'tansync' )
+				),	
+			)
+		);
+
+		$settings['Targeted Content'] = array(
+			'title'				=> __( 'Targeted Content', 'tansync'),
+			'description'		=> __( 'Settings to determine how targeted content is displayed to the user'),
+			'fields'			=> array(
+				array(
+					'id'			=> 'targeted_content_conditions',
+					'label'			=> __('Targeted Content Conditions'),
+					'description'	=> __('Enter a list of page slugs and the conditions required to display those pages to the user', 'tansync'),
+					'type'			=> 'textarea',
+					'default'		=> '',
+					'placeholder'	=> __( '[{"slug":"page_slug_1", "Conditions":<page_conditions_1>}, {"slug":"page_slug_2", "condtions":<page_conditions_2>}]'),
+				),
 			)
 		);
 
