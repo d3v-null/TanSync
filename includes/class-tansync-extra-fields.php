@@ -3,10 +3,18 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
-* 
+* Deals with the extra fields
 */
 class Tansync_Extra_fields
 {
+	/**
+	 * Parent class object
+	 * @var     object
+	 * @access  public
+	 * @since   1.0.0
+	 */
+	public $parent = null;
+
 	/**
 	 * Settings class object
 	 * @var     object
@@ -15,9 +23,10 @@ class Tansync_Extra_fields
 	 */
 	public $settings = null;
 
-	function __construct($settings)
+	function __construct($parent)
 	{
-		$this->settings = $settings;
+		$this->parent = $parent;
+		$this->settings = $parent->settings;
 		// User Contact Methods
 		add_action('admin_init', array($this, 'modify_user_edit_admin') );
 		// My Account 
@@ -25,9 +34,6 @@ class Tansync_Extra_fields
 		// Edit My Account
 		add_action('init', array($this, 'modify_edit_my_account'));		
 	}
-
-// DERWENT
-
 
 // TWO WAYS TO EDIT USER FIELDS: MY_PROFILE AND CONTACT_METHODS
 

@@ -293,7 +293,7 @@ class TanSync {
 	//DERWENT
 
 	public function construct_extra_fields () {
-		$this->extra_fields = new Tansync_Extra_Fields($this->settings);
+		$this->extra_fields = new Tansync_Extra_Fields($this);
 	}
 
 	/**
