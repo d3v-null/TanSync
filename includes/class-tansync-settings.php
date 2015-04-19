@@ -234,15 +234,15 @@ class TanSync_Settings {
 
 		$settings['Sync'] = array(
 			'title'				=> __( 'Sync Settings', 'tansync' ),
-			'description'		=> __( 'These are some extra input fields that maybe aren\'t as common as the others.', 'tansync' ),
+			'description'		=> __( 'Extra User Fields that are synced with a remote target', 'tansync' ),
 			'fields'			=> array(
 				array(
-					'id' 			=> 'sync_mod_settings',
-					'label'			=> __( 'Read and Write Settings for Synchrnoised Fields' , 'tansync' ),
+					'id' 			=> 'sync_field_settings',
+					'label'			=> __( 'Synchrnoised Field Settings' , 'tansync' ),
 					'description'	=> __( 'Enter user fields that are read from external source and whether this field is modified by WordPress', 'tansync' ),
 					'type'			=> 'textarea',
 					'default'		=> '',
-					'placeholder'	=> __( '{"field_id_1":{"write":1, "external_fieldname":"external_fieldname_1", "display_profile":1}, "field_id_2":{}}', 'tansync' )
+					'placeholder'	=> __( '{"<field_id_1>":<sync_params_1>, "<field_id_2>":<sync_params_2>, ...}', 'tansync' )
 				),	
 			)
 		);

@@ -2,7 +2,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define('TANSYNC_DEBUG', true);
+
 
 class TanSync {
 
@@ -79,6 +79,14 @@ class TanSync {
 	public $script_suffix;
 
 	/**
+	 * Extra Fields
+	 * @var 	object
+	 * @access  public
+	 * @since   1.0.0
+	 */
+	public $extra_fields;
+
+	/**
 	 * Constructor function.
 	 * @access  public
 	 * @since   1.0.0
@@ -114,6 +122,9 @@ class TanSync {
 		// Handle localisation
 		$this->load_plugin_textdomain();
 		add_action( 'init', array( $this, 'load_localisation' ), 0 );
+
+		// Extra_Fields
+		add_action( 'init', array( $this, 'construct_extra_fields'), 0);
 
 		// Add Actions and Filters
 		$this->add_actions_filters();
@@ -279,162 +290,17 @@ class TanSync {
 		update_option( $this->_token . '_version', $this->_version );
 	} // End _log_version_number ()
 
-// DERWENT
+	//DERWENT
 
-	public function modify_contact_methods($profile_fields) {
-
-		$extra_fields = ($this->settings->get_option('extra_user_profile_fields'));
-		if(WP_DEBUG) {
-			error_log("Extra Profile Fields: ".serialize($extra_fields));
-		}
-		if($extra_fields){
-			foreach (json_decode($extra_fields) as $field_slug => $field_label) {
-				$label = $field_label?$field_label:$field_slug;
-				if(WP_DEBUG) {
-					error_log("$field_slug: $label");
-				}
-				$profile_fields[$field_slug] = $field_label;
-			}
-		}
-
-		$remove_fields = ($this->settings->get_option('remove_user_profile_fields'));
-		if(WP_DEBUG) {
-			error_log("Remove Profile Fields: ".serialize($remove_fields));
-		}
-		if($remove_fields){
-			foreach (json_decode($remove_fields) as $field_slug) {
-				unset($profile_fields[$field_slug]);
-			}
-		}
-
-		return $profile_fields;
-	}
-
-	public function add_my_account_extra_fields(){
-
-		$extra_fields = ($this->settings->get_option('extra_user_profile_fields'));
-		$user_id = get_current_user_id();
-		
-		if ($extra_fields and $user_id){
-			// TODO: make this modifiable in settings
-			echo "<h2>My Profile</h2>";
-			// TODO: Make this a table
-			echo "<p class='user-profile-fields'>";
-			foreach (json_decode($extra_fields) as $field_slug => $field_label) {
-				$label = $field_label?$field_label:$field_slug;
-				$value = get_user_meta($user_id, $field_slug, true);
-				echo "<strong class='profile-label'>".$label.":</strong> ";
-				echo "<span class='profile-value'>".$value."</span>";
-				echo "<br/>";
-			}
-			echo "</p>";
-		}
-	}
-
-	private function get_current_user_roles(){
-		global $Lasercommerce_Roles_Override;
-        if(isset($Lasercommerce_Roles_Override) and is_array($Lasercommerce_Roles_Override)){
-            $roles = $Lasercommerce_Roles_Override;
-        } else {
-            $current_user = wp_get_current_user();
-            $roles = $current_user->roles;
-        }
-        return $roles;
-	}
-
-	private function evaluate_condition($type, $parameters){
-		//TODO: actually evaluate conditions
-		if(WP_DEBUG and TANSYNC_DEBUG) error_log("--> evaluating condition: $type | ".serialize($parameters) );
-		switch ($type) {
-			case 'allowed_roles':
-				if($parameters){
-					if(gettype($parameters) == 'string') {
-						$allowed_roles = array($parameters);
-					} else {
-						$allowed_roles = $parameters;
-					}
-					assert(is_array($allowed_roles));
-					$current_roles = $this->get_current_user_roles();
-					if(WP_DEBUG and TANSYNC_DEBUG) error_log("---> current roles: ".serialize($current_roles));
-					$intersect = array_intersect($current_roles, $allowed_roles);
-					if(sizeof($intersect) == 0){
-						if(WP_DEBUG and TANSYNC_DEBUG) error_log("---> condition failed");
-						return false;
-					} else {
-						if(WP_DEBUG and TANSYNC_DEBUG) error_log("---> condition passed");
-						return true;
-					}
-				}
-				break;
-			default:
-				# code...
-				break;
-		}
-		if(WP_DEBUG and TANSYNC_DEBUG) error_log("---> condition passed by default");
-		return true;
-	}
-
-	private function process_targeted_content_conditions($specs){
-		if(WP_DEBUG and TANSYNC_DEBUG) error_log("\nProcessing Targeted Content Conditions | specs: ".serialize($specs));
-		// assert($specs and is_array($specs));
-		$slugs = array();
-		foreach ($specs as $spec) {
-			$slug = isset($spec->slug)?$spec->slug:"";
-			if(WP_DEBUG and TANSYNC_DEBUG) error_log("-> processing slug: $slug");
-			if(!$slug){
-				if(WP_DEBUG and TANSYNC_DEBUG) error_log("--> invalid slug: $slug");
-			} 
-			if( in_array($slug, array_keys($slugs))) {
-				if(WP_DEBUG and TANSYNC_DEBUG) error_log("--> already validated slug: $slug");
-			}
-			$conditions = isset($spec->conditions)?$spec->conditions:array();
-
-			$passed = true;
-			foreach (get_object_vars($conditions) as $type => $parameters) {
-				$result = $this->evaluate_condition($type, $parameters);
-				if(!$result) {
-					$passed = false;
-					break;
-				}
-			}
-			if(!$passed) {
-				if(WP_DEBUG and TANSYNC_DEBUG) error_log("--> skipping $slug");
-				continue;
-			}
-
-			$label = isset($spec->label)?$spec->label:$slug;
-			if(WP_DEBUG and TANSYNC_DEBUG) error_log("--> adding slug: $slug");
-			$slugs[$slug] = $label;
-		}
-		return $slugs;
-	}
-
-	public function add_my_account_targeted_content(){
-		$conditions_str = $this->settings->get_option('targeted_content_conditions');
-		assert( gettype($conditions_str) == 'string' );
-		$conditions = json_decode( $conditions_str );
-		$slugs = $this->process_targeted_content_conditions($conditions);
-		if($slugs and is_array($slugs)){
-			//todo: make title modifiable in settings
-			echo "<h2>My Resources</h2>";
-			echo "<ul id='user_content'>";
-			foreach ($slugs as $slug => $label) {
-				// TODO output page urls and labels
-				echo "<li>".$slug."</li>";
-			}
-			echo "</ul>";
-		}
-
-
+	public function construct_extra_fields () {
+		$this->extra_fields = new Tansync_Extra_Fields($this->settings);
 	}
 
 	/**
 	 * Adds Custom Actions and Filters 
 	 */
 	private function add_actions_filters () {
-		add_filter('user_contactmethods', array($this, 'modify_contact_methods'));
-		add_action('woocommerce_before_my_account', array($this, 'add_my_account_extra_fields'));
-		add_action('woocommerce_before_my_account', array($this, 'add_my_account_targeted_content'));
+
 	} 
 
 

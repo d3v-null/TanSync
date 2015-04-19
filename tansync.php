@@ -19,9 +19,12 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+define('TANSYNC_DEBUG', true);
+
 // Load plugin class files
 require_once( 'includes/class-tansync.php' );
 require_once( 'includes/class-tansync-settings.php' );
+require_once( 'includes/class-tansync-extra-fields.php' );
 
 // Load plugin libraries
 require_once( 'includes/lib/class-tansync-admin-api.php' );
