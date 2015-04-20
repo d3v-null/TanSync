@@ -37,10 +37,16 @@ class Tansync_Extra_fields
 
 // TWO WAYS TO EDIT USER FIELDS: MY_PROFILE AND CONTACT_METHODS
 
+	public function sync_user($user_id){
+		//TODO: This
+		if(WP_DEBUG and TANSYNC_DEBUG) error_log("syncing user: ".$user_id);
+		update_user_meta($user_id, 'last_update', time());
+	}
+
 	public function get_synced_fields(){
 		$field_string = $this->settings->get_option('sync_field_settings', true);
 		$fields = (array)json_decode($field_string);
-		if(WP_DEBUG) error_log("fields: ".serialize($fields));
+		// if(WP_DEBUG) error_log("fields: ".serialize($fields));
 		if($fields){
 			return $fields;
 		} else {
@@ -57,7 +63,7 @@ class Tansync_Extra_fields
 				return $filter;
 			}
 		);
-		if(WP_DEBUG) error_log("displayed fields:".serialize($filtered_fields));
+		// if(WP_DEBUG) error_log("displayed fields:".serialize($filtered_fields));
 		return $filtered_fields;
 	}
 
@@ -70,7 +76,7 @@ class Tansync_Extra_fields
 				return $filter;
 			}
 		);
-		if(WP_DEBUG) error_log("modified fields: ".serialize($filtered_fields));
+		// if(WP_DEBUG) error_log("modified fields: ".serialize($filtered_fields));
 		return $filtered_fields;
 	}
 
@@ -80,15 +86,15 @@ class Tansync_Extra_fields
 			$fields,
 			function($field){
 				$filter = isset($field->contact_method)?$field->contact_method:False;
-				if(WP_DEBUG) error_log("filtering ".serialize($field)." | ".$filter);
+				// if(WP_DEBUG) error_log("filtering ".serialize($field)." | ".$filter);
 				return $filter;
 			}
 		);
-		if(WP_DEBUG) error_log("contact fields: ".serialize($filtered_fields));
+		// if(WP_DEBUG) error_log("contact fields: ".serialize($filtered_fields));
 		return $filtered_fields;
 	}
 
-	public function get_core_user_edit_fields(){
+	public function get_user_edit_fields(){
 		return array(
 			'first_name',
 			'last_name',
@@ -102,22 +108,53 @@ class Tansync_Extra_fields
 		return array(
 			'first_name',
 			'last_name',
+			'display_name',
 			'email'
 		);
 	}
 
+	private function get_current_user_roles(){
+		global $Lasercommerce_Roles_Override;
+        if(isset($Lasercommerce_Roles_Override) and is_array($Lasercommerce_Roles_Override)){
+            $roles = $Lasercommerce_Roles_Override;
+        } else {
+            $current_user = wp_get_current_user();
+            $roles = $current_user->roles;
+        }
+        return $roles;
+	}
+
 	public function modify_contact_fields($profile_fields) {
 		$extra_fields = $this->get_contact_fields();
-		$core_fields = $this->get_core_user_edit_fields();
+		$core_fields = $this->get_user_edit_fields();
 		foreach ($extra_fields as $slug => $params) {
 			if(in_array($slug, $core_fields)) continue;
 			$label = isset($params->label)?$params->label:$slug;
-			if(WP_DEBUG and TANSYNC_DEBUG) {
-				error_log("$slug: $label");
-			}			
+			// if(WP_DEBUG and TANSYNC_DEBUG) {
+			// 	error_log("$slug: $label");
+			// }			
 			$profile_fields[$slug] = $label;
 		}
 		return $profile_fields;
+	}
+
+	public function modify_user_edit_admin(){
+		global $pagenow;
+		if(WP_DEBUG and TANSYNC_DEBUG) error_log("pagenow: ".serialize($pagenow));
+		// User-Edit Contact Methods
+		if($pagenow == "user-edit.php"){
+			add_filter('user_contactmethods', array($this, 'modify_contact_fields'));
+			// do_action( 'edit_user_profile_update', $user_id );
+			// add_filter('edit_user_profile_update', array(&$this, 'sync_user'));
+			// add_filter('personal_options_update', array(&$this, 'sync_user'));
+			add_filter('profile_update', array(&$this, 'sync_user'));
+		} elseif ($pagenow == "profile.php" ) {	
+			add_filter('user_contactmethods', array($this, 'modify_contact_fields'));
+			// do_action( 'personal_options_update', $user_id );
+			// add_filter('personal_options_update', array(&$this, 'sync_user'));
+			// add_filter('edit_user_profile_update', array(&$this, 'sync_user'));
+			add_filter('profile_update', array(&$this, 'sync_user'));
+		}
 	}
 
 	public function display_my_account_fields(){
@@ -143,54 +180,6 @@ class Tansync_Extra_fields
 			echo "</table>";
 			echo "</p>";
 		}
-	}
-
-	public function add_edit_my_account_fields(){
-		$extra_fields = $this->get_modified_profile_fields();
-
-
-		// do_action( 'woocommerce_edit_account_form' ); 
-		add_action(
-			'woocommerce_edit_account_form',
-			function() use ($extra_fields){
-				$user_id = get_current_user_id();
-				foreach ($extra_fields as $slug => $params) {
-					$label = isset($params->label)?$params->label:$slug;
-					$value = get_user_meta($user_id, $slug, true);
-?>
-	<p class="form-row form-row-wide">
-		<label for="<?php echo $slug; ?>"><?php _e( $label, 'lasercommerce' ); ?></label>
-		<input type="text" class="input-text" name="<?php echo $slug; ?>" id="<?php echo $slug; ?>" value="<?php echo esc_attr( $value ); ?>" />
-	</p>
-<?php
-				}
-			}
-		);
-		// do_action_ref_array( 'user_profile_update_errors', array( &$errors, $update, &$user ) );
-		add_action(
-			'user_profile_update_errors',
-			function($ref_array) use ($extra_fields){
-				//todo: validate fields
-			}
-		);
-		// do_action( 'woocommerce_save_account_details', $user->ID );
-		add_action(
-			'woocommerce_save_account_details',
-			function($user_id) use ($extra_fields){
-				//TODO: This
-			}
-		);
-	}
-
-	private function get_current_user_roles(){
-		global $Lasercommerce_Roles_Override;
-        if(isset($Lasercommerce_Roles_Override) and is_array($Lasercommerce_Roles_Override)){
-            $roles = $Lasercommerce_Roles_Override;
-        } else {
-            $current_user = wp_get_current_user();
-            $roles = $current_user->roles;
-        }
-        return $roles;
 	}
 
 	private function evaluate_condition($type, $parameters){
@@ -275,18 +264,8 @@ class Tansync_Extra_fields
 			}
 			echo "</ul>";
 		}
-
-
 	}
 
-	public function modify_user_edit_admin(){
-		global $pagenow;
-		if(WP_DEBUG and TANSYNC_DEBUG) error_log("pagenow: ".serialize($pagenow));
-		// User-Edit Contact Methods
-		if($pagenow = "user-edit.php"){
-			add_filter('user_contactmethods', array($this, 'modify_contact_fields'));
-		}
-	}
 
 	public function modify_my_account(){
 		add_action('woocommerce_before_my_account', array($this, 'display_my_account_fields'));
@@ -294,8 +273,59 @@ class Tansync_Extra_fields
 	}
 
 	public function modify_edit_my_account(){
-		$this->add_edit_my_account_fields();
+		$modified_fields = $this->get_modified_profile_fields();
+		$core_fields = $this->get_my_account_fields();
+		$extra_fields = array();
+		foreach($modified_fields as $key => $params){
+			if(!in_array($key, $core_fields)){
+				$extra_fields[$key] = $params;
+			}
+		}
+
+		// do_action( 'woocommerce_edit_account_form' ); 
+		add_action(
+			'woocommerce_edit_account_form',
+			function() use ($extra_fields){
+				$user_id = get_current_user_id();
+				foreach ($extra_fields as $slug => $params) {
+					$label = isset($params->label)?$params->label:$slug;
+					$value = get_user_meta($user_id, $slug, true);
+?>
+	<p class="form-row form-row-wide">
+		<label for="<?php echo $slug; ?>"><?php _e( $label, 'lasercommerce' ); ?></label>
+		<input type="text" class="input-text" name="<?php echo $slug; ?>" id="<?php echo $slug; ?>" value="<?php echo esc_attr( $value ); ?>" />
+	</p>
+<?php
+				}
+			}
+		);
+		// do_action_ref_array( 'user_profile_update_errors', array( &$errors, $update, &$user ) );
+		add_action(
+			'user_profile_update_errors',
+			function($ref_array) use ($extra_fields){
+				//todo: validate fields
+			}
+		);
+		// do_action( 'woocommerce_save_account_details', $user->ID );
+		add_action(
+			'woocommerce_save_account_details',
+			function($user_id) use ($extra_fields){
+				if(WP_DEBUG and TANSYNC_DEBUG) error_log("in woocommerce_save_account_details closure | user_id: $user_id");
+				$current_user = get_user_by( 'id', $user_id);
+				foreach($extra_fields as $slug => $params){
+					$default = isset($params->default)?$params->default:'';
+					$value = (isset($_POST[$slug]) and !empty($_POST[$slug]))?wc_clean($_POST[$slug]):$default;
+					if(WP_DEBUG and TANSYNC_DEBUG) {
+						error_log(" -> slug:$slug ");
+						error_log(" -> default:$default");
+						error_log(" -> value:$value");
+					}
+					update_user_meta($user_id, $slug, $value);
+				}		
+			},
+			0
+		);
+		add_action( 'woocommerce_save_account_details', array(&$this, 'sync_user'),	999 );
 
 	}
-
 }
