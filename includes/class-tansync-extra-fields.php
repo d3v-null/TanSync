@@ -96,11 +96,34 @@ class Tansync_Extra_fields
 
 	public function get_user_edit_fields(){
 		return array(
+			'username',
+			'user_email',
 			'first_name',
+			'role',
 			'last_name',
 			'nickname',
 			'display_name',
 			'description',
+			'billing_first_name',
+			'billing_last_name',
+			'billing_company',
+			'billing_address_1',
+			'billing_address_2',
+			'billing_city',
+			'billing_postcode',
+			'billing_country',
+			'billing_state',
+			'billing_phone',
+			'billing_email',
+			'shipping_first_name',
+			'shipping_last_name',
+			'shipping_company',
+			'shipping_address_1',
+			'shipping_address_2',
+			'shipping_city',
+			'shipping_postcode',
+			'shipping_country',
+			'shipping_state'			
 		);
 	}
 
@@ -109,7 +132,7 @@ class Tansync_Extra_fields
 			'first_name',
 			'last_name',
 			'display_name',
-			'email'
+			'email',
 		);
 	}
 
@@ -143,12 +166,14 @@ class Tansync_Extra_fields
 		if(WP_DEBUG and TANSYNC_DEBUG) error_log("pagenow: ".serialize($pagenow));
 		// User-Edit Contact Methods
 		if($pagenow == "user-edit.php"){
+			$this->filter_acui_columns();
 			add_filter('user_contactmethods', array($this, 'modify_contact_fields'));
 			// do_action( 'edit_user_profile_update', $user_id );
 			// add_filter('edit_user_profile_update', array(&$this, 'sync_user'));
 			// add_filter('personal_options_update', array(&$this, 'sync_user'));
 			add_filter('profile_update', array(&$this, 'sync_user'));
 		} elseif ($pagenow == "profile.php" ) {	
+			$this->filter_acui_columns();
 			add_filter('user_contactmethods', array($this, 'modify_contact_fields'));
 			// do_action( 'personal_options_update', $user_id );
 			// add_filter('personal_options_update', array(&$this, 'sync_user'));
@@ -327,5 +352,37 @@ class Tansync_Extra_fields
 		);
 		add_action( 'woocommerce_save_account_details', array(&$this, 'sync_user'),	999 );
 
+	}
+
+	public function filter_acui_columns(){
+		$acui_columns = get_option("acui_columns"); 
+		error_log("acui_columns: ".serialize($acui_columns));
+		error_log(" -> acui is_array ". is_array($acui_columns));
+		error_log(" -> acui not empty ". !empty($acui_columns));
+		if(is_array($acui_columns) && !empty($acui_columns)){
+			error_log("made it this far");
+			$new_columns = array();
+			$extra_fields = array_keys($this->get_contact_fields());
+			$core_fields = $this->get_user_edit_fields();
+			error_log("extra fields: ".serialize($extra_fields));
+			error_log("core fields: ".serialize($core_fields));
+			foreach ($acui_columns as $key => $column) {
+				error_log("evaluating key, col".serialize($key).serialize($column));
+				if(in_array($column, $extra_fields)) {
+					error_log('removing column because extra '.$column);
+					continue;
+				}
+				if(in_array($column, $core_fields)) {
+					error_log('removing column because core '.$column);
+					continue;
+				}
+				if(in_array($column, $new_columns)) {
+					error_log('removing column because not unique '.$column);
+					continue;
+				}
+				array_push($new_columns, $column);
+			}
+			update_option("acui_columns", $new_columns);
+		}
 	}
 }
