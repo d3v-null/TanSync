@@ -25,6 +25,7 @@ define('TANSYNC_DEBUG', true);
 require_once( 'includes/class-tansync.php' );
 require_once( 'includes/class-tansync-settings.php' );
 require_once( 'includes/class-tansync-extra-fields.php' );
+require_once( 'includes/class-tansync-synchronization.php' );
 
 // Load plugin libraries
 require_once( 'includes/lib/class-tansync-admin-api.php' );
@@ -43,6 +44,14 @@ function TanSync () {
 	if ( is_null( $instance->settings ) ) {
 		$instance->settings = TanSync_Settings::instance( $instance );
 	}
+
+    if ( is_null( $instance->synchronization ) ) {
+        $instance->synchronization = TanSync_Synchronization::instance( $instance );
+    }
+
+    if ( is_null( $instance->extra_fields ) ) {
+        $instance->extra_fields = TanSync_Synchronization::instance( $instance );
+    }
 
 	return $instance;
 }

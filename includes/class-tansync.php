@@ -84,7 +84,17 @@ class TanSync {
 	 * @access  public
 	 * @since   1.0.0
 	 */
-	public $extra_fields;
+	public $extra_fields = null;
+
+	/**
+	 * Synchronization object
+	 * @var 	object
+	 * @access  public
+	 * @since   1.0.0
+	 */
+	public $synchronization = null;
+
+
 
 	/**
 	 * Constructor function.
@@ -104,7 +114,7 @@ class TanSync {
 
 		$this->script_suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 
-		register_activation_hook( $this->file, array( $this, 'install' ) );
+		register_activation_hook( $this->file, array( $this, 'activate' ) );
 
 		// Load frontend JS & CSS
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 10 );
@@ -124,7 +134,9 @@ class TanSync {
 		add_action( 'init', array( $this, 'load_localisation' ), 0 );
 
 		// Extra_Fields
-		add_action( 'init', array( $this, 'construct_extra_fields'), 0);
+		// $this->extra_fields = new Tansync_Extra_Fields($this);
+		// add_action( 'init', array( $this, 'construct_extra_fields'), 0);
+
 
 		// Add Actions and Filters
 		$this->add_actions_filters();
@@ -271,14 +283,45 @@ class TanSync {
 	} // End __wakeup ()
 
 	/**
-	 * Installation. Runs on activation.
+	 * Runs on activation.
 	 * @access  public
 	 * @since   1.0.0
 	 * @return  void
 	 */
-	public function install () {
+	public function activate () {
+		error_log("calling Tansync -> activate");
+		$_version = get_option($this->_token . '_version');
+		if( !$_version ){
+			$this->install ();
+		}elseif(strcmp($_version,$this->_version )){
+			$this->upgrade ($_version);
+		} else {
+			$this->validate_install();
+		}
+
 		$this->_log_version_number();
 	} // End install ()
+
+	/**
+	 * Install. Runs on fresh install.
+	 * @access  public
+	 * @since   1.0.0
+	 * @return  void
+	 */
+	public function install(){
+		error_log("calling Tansync -> install");
+		$this->synchronization->install_tables();
+	}
+
+	public function upgrade( $old_version ){
+		error_log("calling Tansync -> upgrade");
+		//	this in future versions
+	}
+
+	public function validate_install(){
+		error_log("calling Tansync -> validate_install");
+		$this->synchronization->validate_install();
+	}
 
 	/**
 	 * Log the plugin version number.
@@ -292,9 +335,9 @@ class TanSync {
 
 	//DERWENT
 
-	public function construct_extra_fields () {
-		$this->extra_fields = new Tansync_Extra_Fields($this);
-	}
+	// public function construct_extra_fields () {
+	// 	$this->extra_fields = new Tansync_Extra_Fields($this);
+	// }
 
 	/**
 	 * Adds Custom Actions and Filters 

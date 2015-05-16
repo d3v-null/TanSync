@@ -27,6 +27,7 @@ class Tansync_Extra_fields
 	{
 		$this->parent = $parent;
 		$this->settings = $parent->settings;
+		$this->synchronization = $parent->synchronization;
 		// User Contact Methods
 		add_action('admin_init', array($this, 'modify_user_edit_admin') );
 		// My Account 
@@ -35,13 +36,24 @@ class Tansync_Extra_fields
 		add_action('init', array($this, 'modify_edit_my_account'));		
 	}
 
-// TWO WAYS TO EDIT USER FIELDS: MY_PROFILE AND CONTACT_METHODS
+	/**
+	 * Main Tansync_Extra_fields Instance
+	 *
+	 * Ensures only one instance of Tansync_Extra_fields is loaded or can be loaded.
+	 *
+	 * @since 1.0.0
+	 * @static
+	 * @see TanSync()
+	 * @return Main Tansync_Extra_fields instance
+	 */
+	public static function instance ( $parent ) {
+		if ( is_null( self::$_instance ) ) {
+			self::$_instance = new self( $parent );
+		}
+		return self::$_instance;
+	} // End instance()	
 
-	public function sync_user($user_id){
-		//TODO: This
-		if(WP_DEBUG and TANSYNC_DEBUG) error_log("syncing user: ".$user_id);
-		update_user_meta($user_id, 'last_update', time());
-	}
+// TWO WAYS TO EDIT USER FIELDS: MY_PROFILE AND CONTACT_METHODS
 
 	public function get_synced_fields(){
 		$field_string = $this->settings->get_option('sync_field_settings', true);
@@ -165,20 +177,16 @@ class Tansync_Extra_fields
 		global $pagenow;
 		if(WP_DEBUG and TANSYNC_DEBUG) error_log("pagenow: ".serialize($pagenow));
 		// User-Edit Contact Methods
-		if($pagenow == "user-edit.php"){
+		if(in_array($pagenow, array("user-edit.php", "profile.php"))){
+			$this->synchronization->process_pending_updates();
 			$this->filter_acui_columns();
-			add_filter('user_contactmethods', array($this, 'modify_contact_fields'));
-			// do_action( 'edit_user_profile_update', $user_id );
 			// add_filter('edit_user_profile_update', array(&$this, 'sync_user'));
 			// add_filter('personal_options_update', array(&$this, 'sync_user'));
-			add_filter('profile_update', array(&$this, 'sync_user'));
-		} elseif ($pagenow == "profile.php" ) {	
-			$this->filter_acui_columns();
-			add_filter('user_contactmethods', array($this, 'modify_contact_fields'));
-			// do_action( 'personal_options_update', $user_id );
-			// add_filter('personal_options_update', array(&$this, 'sync_user'));
-			// add_filter('edit_user_profile_update', array(&$this, 'sync_user'));
-			add_filter('profile_update', array(&$this, 'sync_user'));
+			if($pagenow == "user-edit.php"){
+				add_filter('user_contactmethods', array($this, 'modify_contact_fields'));
+			} elseif ($pagenow == "profile.php" ) {	
+				add_filter('user_contactmethods', array($this, 'modify_contact_fields'));
+			}
 		}
 	}
 
