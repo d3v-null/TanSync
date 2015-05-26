@@ -39,19 +39,21 @@ require_once( 'includes/lib/class-tansync-taxonomy.php' );
  * @return object TanSync
  */
 function TanSync () {
-	$instance = TanSync::instance( __FILE__, '1.0.0' );
+	error_log("Tansync function");
+
+    $instance = TanSync::instance( __FILE__, '1.0.0' );
 
 	if ( is_null( $instance->settings ) ) {
 		$instance->settings = TanSync_Settings::instance( $instance );
 	}
 
-    if ( is_null( $instance->synchronization ) ) {
-        $instance->synchronization = TanSync_Synchronization::instance( $instance );
-    }
+    $instance->synchronization = TanSync_Synchronization::instance( $instance );
+    // if ( 1 or is_null( $instance->synchronization ) ) {
+    // }
 
-    if ( is_null( $instance->extra_fields ) ) {
-        $instance->extra_fields = TanSync_Synchronization::instance( $instance );
-    }
+    $instance->extra_fields = TanSync_Extra_Fields::instance( $instance );
+    // if ( 1 or is_null( $instance->extra_fields ) ) {
+    // }
 
 	return $instance;
 }

@@ -311,6 +311,7 @@ class TanSync {
 	public function install(){
 		error_log("calling Tansync -> install");
 		$this->synchronization->install_tables();
+		$this->synchronization->schedule_email_cron();
 	}
 
 	public function upgrade( $old_version ){

@@ -1,0 +1,174 @@
+{
+    "user_email": {
+        "sync_label": "E-mail",
+        "sync_egress": 1,
+        "sync_ingress": 1
+    },
+    "user_url": {
+        "sync_label": "Web Site",
+        "sync_egress": 1,
+        "sync_ingress": 1
+    },
+    "myob_customer_card_id": {
+        "sync_label": "MYOB Customer Card ID",
+        "sync_egress": 1,
+        "sync_ingress": 1
+    },
+    "first_name": {
+        "label": "First Name",
+        "profile_display": 1,
+        "profile_modify": 1,
+        "sync_egress": 1,
+        "sync_ingress": 1
+    },
+    "last_name": {
+        "label": "Last Name",
+        "sync_label": "Surname",
+        "sync_egress": 1,
+        "sync_ingress": 1
+    },
+    "nickname": {
+        "sync_label": "Contact",
+        "sync_egress": 1,
+        "sync_ingress": 1
+    },
+    "billing_company":{
+        "sync_label":"Company",
+        "sync_egress":1,
+        "sync_ingress":1
+    },
+    "billing_address_1":{
+        "sync_label":"Address 1",
+        "sync_egress":1,
+        "sync_ingress":1
+    },
+    "billing_address_2":{
+        "sync_label":"Address 2",
+        "sync_egress":1,
+        "sync_ingress":1
+    },
+    "billing_city":{
+        "sync_label":"City",
+        "sync_egress":1,
+        "sync_ingress":1
+    },
+    "billing_postcode":{
+        "sync_label":"Postcode",
+        "sync_egress":1,
+        "sync_ingress":1
+    },
+    "billing_state":{
+        "sync_label":"State",
+        "sync_egress":1,
+        "sync_ingress":1
+    },
+    "billing_phone":{
+        "sync_label":"Phone",
+        "sync_egress":1,
+        "sync_ingress":1
+    },
+    "shipping_address_1":{
+        "sync_label":"Home Address 1",
+        "sync_egress":1,
+        "sync_ingress":1
+    },
+    "shipping_address_2":{
+        "sync_label":"Home Address 2",
+        "sync_egress":1,
+        "sync_ingress":1
+    },
+    "shipping_city":{
+        "sync_label":"Home City",
+        "sync_egress":1,
+        "sync_ingress":1
+    },
+    "shipping_postcode":{
+        "sync_label":"Home Postcode",
+        "sync_egress":1,
+        "sync_ingress":1
+    },
+    "shipping_country":{
+        "sync_label":"Home Country",
+        "sync_egress":1,
+        "sync_ingress":1
+    },
+    "shipping_state":{
+        "sync_label":"Home State",
+        "sync_egress":1,
+        "sync_ingress":1
+    },
+    "client_grade": {
+        "label": "TechnoTan Grade",
+        "profile_display": 1,
+        "sync_label": "Client Grade",
+        "sync_ingress": 1
+    },
+    "direct_brand": {
+        "sync_label": "Direct Brand",
+        "sync_ingress": 1
+    },
+    "agent": {
+        "label": "Agent",
+        "profile_display": 1,
+        "sync_ingress": 1
+    },
+    "birth_date": {
+        "label": "Birth Date",
+        "profile_display": 1,
+        "profile_modify": 1,
+        "sync_egress": 1,
+        "sync_ingress": 1
+    },
+    "mobile_number": {
+        "label": "Mobile Phone",
+        "profile_display": 1,
+        "profile_modify": 1,
+        "contact_method": 1,
+        "sync_egress": 1,
+        "sync_ingress": 1
+    },
+    "fax_number":{
+        "label":"Fax Number",
+        "sync_label":"Fax",
+        "sync_egress":1,
+        "sync_ingress":1
+    },
+    "facebook":{
+        "label":"Facebook Username",
+        "profile_display": 1,
+        "profile_modify": 1,
+        "contact_method": 1
+    },
+    "twitter": {
+        "label": "Twitter Username",
+        "profile_display": 1,
+        "profile_modify": 1,
+        "contact_method": 1
+    },
+    "gplus":{
+        "label":"Google+ Username",
+        "profile_display": 1,
+        "profile_modify": 1,
+        "contact_method": 1
+    },
+    "instagram":{
+        "label":"Ingragram",
+        "profile_display": 1,
+        "profile_modify": 1,
+        "contact_method": 1
+    }
+}
+// "user_registered": {},
+// "ID": {
+//     // "sync_egress":1,
+//     // "sync_label":"TT ID" 
+// },
+// "user_login": {
+//     // "sync_egress":1
+//     // "sync_label":"TT username"
+// },
+// "user_pass": {},
+// "user_nicename": {},
+// "display_name": {},
+// "user_activation_key": {},
+// "user_status": {},

@@ -15,16 +15,17 @@ class Tansync_Extra_fields
 	 */
 	public $parent = null;
 
-	/**
-	 * Settings class object
-	 * @var     object
-	 * @access  public
-	 * @since   1.0.0
-	 */
-	public $settings = null;
+	// *
+	//  * The single instance of Tansync_Extra_fields.
+	//  * @var     object
+	//  * @access  private
+	//  * @since   1.0.0
+	 
+	// private static $_instance = null;	
 
 	function __construct($parent)
 	{
+		error_log("Tansync_Extra_fields Constructor");
 		$this->parent = $parent;
 		$this->settings = $parent->settings;
 		$this->synchronization = $parent->synchronization;
@@ -47,10 +48,11 @@ class Tansync_Extra_fields
 	 * @return Main Tansync_Extra_fields instance
 	 */
 	public static function instance ( $parent ) {
-		if ( is_null( self::$_instance ) ) {
-			self::$_instance = new self( $parent );
-		}
-		return self::$_instance;
+		return new self( $parent );
+		// if ( is_null( self::$_instance ) ) {
+		// 	self::$_instance = new self( $parent );
+		// }
+		// return self::$_instance;
 	} // End instance()	
 
 // TWO WAYS TO EDIT USER FIELDS: MY_PROFILE AND CONTACT_METHODS
@@ -162,12 +164,11 @@ class Tansync_Extra_fields
 	public function modify_contact_fields($profile_fields) {
 		$extra_fields = $this->get_contact_fields();
 		$core_fields = $this->get_user_edit_fields();
+		error_log("contact fields: ");
 		foreach ($extra_fields as $slug => $params) {
 			if(in_array($slug, $core_fields)) continue;
 			$label = isset($params->label)?$params->label:$slug;
-			// if(WP_DEBUG and TANSYNC_DEBUG) {
-			// 	error_log("$slug: $label");
-			// }			
+			error_log(" -> $slug: $label");
 			$profile_fields[$slug] = $label;
 		}
 		return $profile_fields;
@@ -175,18 +176,12 @@ class Tansync_Extra_fields
 
 	public function modify_user_edit_admin(){
 		global $pagenow;
-		if(WP_DEBUG and TANSYNC_DEBUG) error_log("pagenow: ".serialize($pagenow));
+		error_log("pagenow: ".serialize($pagenow));
 		// User-Edit Contact Methods
 		if(in_array($pagenow, array("user-edit.php", "profile.php"))){
-			$this->synchronization->process_pending_updates();
+			// $this->synchronization->process_pending_updates();
 			$this->filter_acui_columns();
-			// add_filter('edit_user_profile_update', array(&$this, 'sync_user'));
-			// add_filter('personal_options_update', array(&$this, 'sync_user'));
-			if($pagenow == "user-edit.php"){
-				add_filter('user_contactmethods', array($this, 'modify_contact_fields'));
-			} elseif ($pagenow == "profile.php" ) {	
-				add_filter('user_contactmethods', array($this, 'modify_contact_fields'));
-			}
+			add_filter('user_contactmethods', array($this, 'modify_contact_fields'));
 		}
 	}
 

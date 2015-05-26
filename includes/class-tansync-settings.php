@@ -60,6 +60,7 @@ class TanSync_Settings {
 	 */
 	public function init_settings () {
 		$this->settings = $this->settings_fields();
+
 	}
 
 	/**
@@ -107,10 +108,10 @@ class TanSync_Settings {
 	 */
 	private function settings_fields () {
 
-		$settings['User Fields'] = array(
-			'title'				=> __( 'Additional User Fields', 'tansync' ),
-			'description'		=> __( 'Describes the fields added to the user profile screens', 'tansync' ),
-			'fields'			=> array(
+		// $settings['User Fields'] = array(
+		// 	'title'				=> __( 'Additional User Fields', 'tansync' ),
+		// 	'description'		=> __( 'Describes the fields added to the user profile screens', 'tansync' ),
+		// 	'fields'			=> array(
 			// 	array(
 			// 		'id' 			=> 'text_field',
 			// 		'label'			=> __( 'Some Text' , 'tansync' ),
@@ -205,32 +206,7 @@ class TanSync_Settings {
 			// 	'options'		=> array( 'linux' => 'Linux', 'mac' => 'Mac', 'windows' => 'Windows' ),
 			// 	'default'		=> array( 'linux' )
 			// )
-				array(
-					'id' 			=> 'extra_user_profile_fields',
-					'label'			=> __( 'Additional User Profile Fields' , 'tansync' ),
-					'description'	=> __( 'Enter additional User fields in JSON format', 'tansync' ),
-					'type'			=> 'textarea',
-					'default'		=> '',
-					'placeholder'	=> __( '{"field_id_1":"Field Label 1", "field_id_2":"Field Label 2"', 'tansync' )
-				),	
-				array(
-					'id'			=> 'remove_user_profile_fields',
-					'label'			=> __( 'Remove User Profile Fields', 'tansync'),
-					'description'	=> __( 'Enter fields to remove from the user profile in JSON format', 'tansync'),
-					'type'			=> 'textarea',
-					'default'		=> '',
-					'placeholder'	=> __( '["field_id_1", "field_id_2"]', 'tansync' )
-				),
-				array(
-					'id' 			=> 'extra_user_custom_fields',
-					'label'			=> __( 'Additional Custom User Fields' , 'tansync' ),
-					'description'	=> __( 'Enter additional User fields in JSON format', 'tansync' ),
-					'type'			=> 'textarea',
-					'default'		=> '{"field_id_1":{"label":"Field Label 1"}, "field_id_2":{"label":"Field Label 1"}}',
-					'placeholder'	=> __( '{"field_id_1":{"label":"Field Label 1"}, "field_id_2":{"label":"Field Label 1"}}', 'tansync' )
-				),			
-			)
-		);
+		// );
 
 		$settings['Sync'] = array(
 			'title'				=> __( 'Sync Settings', 'tansync' ),
@@ -244,6 +220,28 @@ class TanSync_Settings {
 					'default'		=> '',
 					'placeholder'	=> __( '{"<field_id_1>":<sync_params_1>, "<field_id_2>":<sync_params_2>, ...}', 'tansync' )
 				),	
+				array(
+					'id'			=> 'sync_email_enable',
+					'label'			=> 'Enable Synchronization Email',
+					'description'	=> __( 'Enables the service that emails staff regularly about user account changes', 'tansync'),
+					'type'			=> 'checkbox',
+					'default'		=> 'on'
+				),
+				array(
+					'id'			=> 'sync_email_interval',
+					'label'			=> 'Synchronization Email Interval',
+					'description'	=> __( 'Enter the Interval (in seconds) that the plugin checks for updated users', 'tansync'),
+					'type'			=> 'number',
+					'default'		=> 300
+				),
+				array(
+					'id'			=> 'sync_email_to',
+					'label'			=> __( 'Synchronize Email Address', 'tansync'),
+					'description'	=> __( 'Enter the email to which the synchronization messages are sent', 'tansync'),
+					'type'			=> 'text',
+					'default'		=> '',
+					'placeholder'	=> 'user@example.com'
+				)
 			)
 		);
 
@@ -409,6 +407,18 @@ class TanSync_Settings {
 		// if(WP_DEBUG) error_log("getting option $option_slug");
 		if ( is_string($this->base) and is_string($option_slug) ) {
 			return get_option( $this->base . $option_slug );
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * gets the specified option
+	 */
+	public function set_option( $option_slug, $value ) {
+		// if(WP_DEBUG) error_log("getting option $option_slug");
+		if ( is_string($this->base) and is_string($option_slug) ) {
+			return update_option( $this->base . $option_slug, $value );
 		} else {
 			return null;
 		}
