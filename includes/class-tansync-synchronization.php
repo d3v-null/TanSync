@@ -11,7 +11,7 @@ define( 'TANSYNC_COMPLETE', 2);
 define( 'TANSYNC_DOMAIN', 'tansync');
 
 
-function set_html_content_type() {
+function tansync_set_html_content_type() {
     return 'text/html';
 }
 
@@ -331,14 +331,14 @@ class Tansync_Synchronization{
                 if($email_recipient){
                     error_log("updates: ");
                     $email_message = "UPDATES: \n";
-                    $email_message .= "<table>\n";
-                    $email_message .= "<th><td>UserID</td><td>Changes</td></th>\n";
+                    $email_message .= "<table>";
+                    $email_message .= "<tr><td>UserID</td><td>Changes</td></tr>";
                     foreach($updates as $update){
                         error_log(serialize($update));
                         $email_message .= "<tr>";
                         $email_message .= "<td>".$update['user_id']."</td>";
                         $email_message .= "<td>".$update['data']."</td>";
-                        $email_message .= "</tr>\n";
+                        $email_message .= "</tr>";
                     }
                     $email_message .= "</table>";
                     $email_message .= "</html>";
@@ -347,11 +347,11 @@ class Tansync_Synchronization{
                     error_log(" -> recipient: ". $email_recipient);
                     error_log(" -> message: ". $email_message);
 
-                    add_filter( 'wp_mail_content_type', 'set_html_content_type' );
+                    add_filter( 'wp_mail_content_type', 'tansync_set_html_content_type' );
 
                     wp_mail( $email_recipient, "tansync user updates", $email_message);
 
-                    remove_filter( 'wp_mail_content_type', 'set_html_content_type' );
+                    remove_filter( 'wp_mail_content_type', 'tansync_set_html_content_type' );
 
                 }
                 $this->settings->set_option('update_report_last_run', $now);
