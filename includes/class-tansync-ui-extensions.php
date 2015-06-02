@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /**
 * Deals with the extra fields
 */
-class Tansync_Extra_fields
+class Tansync_UI_Extensions
 {
 	/**
 	 * Parent class object
@@ -16,7 +16,7 @@ class Tansync_Extra_fields
 	public $parent = null;
 
 	// *
-	//  * The single instance of Tansync_Extra_fields.
+	//  * The single instance of Tansync_UI_Extensions.
 	//  * @var     object
 	//  * @access  private
 	//  * @since   1.0.0
@@ -25,7 +25,7 @@ class Tansync_Extra_fields
 
 	function __construct($parent)
 	{
-		error_log("Tansync_Extra_fields Constructor");
+		error_log("Tansync_UI_Extensions Constructor");
 		$this->parent = $parent;
 		$this->settings = $parent->settings;
 		$this->synchronization = $parent->synchronization;
@@ -35,17 +35,19 @@ class Tansync_Extra_fields
 		add_action('init', array($this, 'modify_my_account'));
 		// Edit My Account
 		add_action('init', array($this, 'modify_edit_my_account'));		
+
+		// add_action('init', array($this, 'modify_woocommerce_checkout'));
 	}
 
 	/**
-	 * Main Tansync_Extra_fields Instance
+	 * Main Tansync_UI_Extensions Instance
 	 *
-	 * Ensures only one instance of Tansync_Extra_fields is loaded or can be loaded.
+	 * Ensures only one instance of Tansync_UI_Extensions is loaded or can be loaded.
 	 *
 	 * @since 1.0.0
 	 * @static
 	 * @see TanSync()
-	 * @return Main Tansync_Extra_fields instance
+	 * @return Main Tansync_UI_Extensions instance
 	 */
 	public static function instance ( $parent ) {
 		return new self( $parent );
@@ -279,7 +281,9 @@ class Tansync_Extra_fields
 
 	public function add_my_account_targeted_content(){
 		$conditions_str = $this->settings->get_option('targeted_content_conditions');
-		assert( gettype($conditions_str) == 'string' );
+		if( gettype($conditions_str) != 'string' ){
+			return;
+		}
 		$conditions = json_decode( $conditions_str );
 		$slugs = $this->process_targeted_content_conditions($conditions);
 		if($slugs and is_array($slugs)){

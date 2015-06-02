@@ -329,12 +329,16 @@ class Tansync_Synchronization{
             if($updates and !empty($updates)){
                 $email_recipient = $this->settings->get_option('sync_email_to');
                 if($email_recipient){
-                    error_log("updates: ");
+                    foreach ($updates as $update) {
+                        $update_json = json_decode($update['data']);
+                        
+                    }
+
+
                     $email_message = "UPDATES: \n";
                     $email_message .= "<table>";
                     $email_message .= "<tr><td>UserID</td><td>Changes</td></tr>";
                     foreach($updates as $update){
-                        error_log(serialize($update));
                         $email_message .= "<tr>";
                         $email_message .= "<td>".$update['user_id']."</td>";
                         $email_message .= "<td>".$update['data']."</td>";

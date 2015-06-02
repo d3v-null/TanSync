@@ -134,7 +134,7 @@ class TanSync {
 		add_action( 'init', array( $this, 'load_localisation' ), 0 );
 
 		// Extra_Fields
-		// $this->extra_fields = new Tansync_Extra_Fields($this);
+		// $this->extra_fields = new Tansync_UI_Extensions($this);
 		// add_action( 'init', array( $this, 'construct_extra_fields'), 0);
 
 
@@ -337,7 +337,7 @@ class TanSync {
 	//DERWENT
 
 	// public function construct_extra_fields () {
-	// 	$this->extra_fields = new Tansync_Extra_Fields($this);
+	// 	$this->extra_fields = new Tansync_UI_Extensions($this);
 	// }
 
 	/**
