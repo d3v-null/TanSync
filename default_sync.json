@@ -133,6 +133,33 @@
         "sync_egress":1,
         "sync_ingress":1
     },
+    "how_hear_about":{
+        "label":"How did you hear about us?",
+        "sync_egress":1,
+        "sync_ingress":1
+    },
+    "referred_by":{
+        "label":"Referred By",
+        "sync_egress":1,
+        "sync_ingress":1
+    },
+    "mailing_list":{
+        "label":"Added to mailing list",
+        "sync_egress":1,
+        "sync_ingress":1
+    },
+    "pref_mob":{
+        "label":"Mobile Phone Preferred",
+        "profile_display": 1,
+        "profile_modify": 1,
+        "contact_method": 1        
+    },
+    "pref_tel":{
+        "label":"Phone Preferred",
+        "profile_display": 1,
+        "profile_modify": 1,
+        "contact_method": 1   
+    },
     "facebook":{
         "label":"Facebook Username",
         "profile_display": 1,
