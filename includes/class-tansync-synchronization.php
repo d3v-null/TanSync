@@ -8,8 +8,6 @@ define( 'TANSYNC_VIRGIN', 0);
 define( 'TANSYNC_PENDING', 1);
 define( 'TANSYNC_COMPLETE', 2);
 
-define( 'TANSYNC_DOMAIN', 'tansync');
-
 
 function tansync_set_html_content_type() {
     return 'text/html';
@@ -164,7 +162,7 @@ class Tansync_Synchronization{
 
 
     public function handle_profile_update($userid, $old_userdata=null){
-        error_log("USER PROFILE UPDATE".serialize($userid));
+        // error_log("USER PROFILE UPDATE".serialize($userid));
 
         //TODO: only generate changed user data
 
@@ -172,7 +170,7 @@ class Tansync_Synchronization{
     }
 
     public function handle_user_register($userid){
-        error_log("USER REGISTRATION: ".serialize($userid));
+        // error_log("USER REGISTRATION: ".serialize($userid));
         $this->queue_update($userid);
     }
 
@@ -197,7 +195,7 @@ class Tansync_Synchronization{
     }
 
     public function queue_update($userid, $userdata = null){
-        error_log("TRIGGER SYNC: ".serialize($userid));
+        // error_log("TRIGGER SYNC: ".serialize($userid));
         // checks for pending ingress updates
 
         if(!$userdata){
@@ -288,7 +286,7 @@ class Tansync_Synchronization{
             TANSYNC_VIRGIN,
             TANSYNC_PENDING
         );
-        error_log("SQL: ".serialize($sql));
+        // error_log("SQL: ".serialize($sql));
         $updates = $wpdb->get_results(
             $sql,
             ARRAY_A
@@ -310,13 +308,13 @@ class Tansync_Synchronization{
     // }
 
     public function update_report_email(){
-        error_log("calling Tansync_Synchronization -> update_report_email");
+        // error_log("calling Tansync_Synchronization -> update_report_email");
 
         //FUCK Cron, I'm doing this manually
 
         $last_run = $this->settings->get_option('update_report_last_run');
         if(!$last_run){
-            error_log("last_run not set");
+            // error_log("last_run not set");
             $last_run = 0;
         }
 
@@ -347,9 +345,9 @@ class Tansync_Synchronization{
                     $email_message .= "</table>";
                     $email_message .= "</html>";
 
-                    error_log("update report email firing: ");
-                    error_log(" -> recipient: ". $email_recipient);
-                    error_log(" -> message: ". $email_message);
+                    // error_log("update report email firing: ");
+                    // error_log(" -> recipient: ". $email_recipient);
+                    // error_log(" -> message: ". $email_message);
 
                     add_filter( 'wp_mail_content_type', 'tansync_set_html_content_type' );
 

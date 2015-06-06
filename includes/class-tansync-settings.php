@@ -68,7 +68,7 @@ class TanSync_Settings {
 	 * @return void
 	 */
 	public function add_menu_item () {
-		$page = add_options_page( __( 'TanSync', 'tansync' ) , __( 'TanSync', 'tansync' ) , 'manage_options' , $this->parent->_token . '_settings' ,  array( $this, 'settings_page' ) );
+		$page = add_options_page( __( 'TanSync', TANSYNC_DOMAIN ) , __( 'TanSync', TANSYNC_DOMAIN ) , 'manage_options' , $this->parent->_token . '_settings' ,  array( $this, 'settings_page' ) );
 		add_action( 'admin_print_styles-' . $page, array( $this, 'settings_assets' ) );
 	}
 
@@ -97,9 +97,26 @@ class TanSync_Settings {
 	 * @return array 		Modified links
 	 */
 	public function add_settings_link ( $links ) {
-		$settings_link = '<a href="options-general.php?page=' . $this->parent->_token . '_settings">' . __( 'Settings', 'tansync' ) . '</a>';
+		$settings_link = '<a href="options-general.php?page=' . $this->parent->_token . '_settings">' . __( 'Settings', TANSYNC_DOMAIN ) . '</a>';
   		array_push( $links, $settings_link );
   		return $links;
+	}
+
+	public function validate_json( $json_str ) {
+		$obj = json_decode($json_str);
+		if( $obj != null ) {
+			return $json_str;
+		} else {
+			return "// INVALID JSON! //\n".$json_str;
+		}
+	}
+
+	public function refresh_roles( $check ){
+		if($check){
+			//refresh roles
+			// TODO
+			return false;
+		} 
 	}
 
 	/**
@@ -109,99 +126,99 @@ class TanSync_Settings {
 	private function settings_fields () {
 
 		// $settings['User Fields'] = array(
-		// 	'title'				=> __( 'Additional User Fields', 'tansync' ),
-		// 	'description'		=> __( 'Describes the fields added to the user profile screens', 'tansync' ),
+		// 	'title'				=> __( 'Additional User Fields', TANSYNC_DOMAIN ),
+		// 	'description'		=> __( 'Describes the fields added to the user profile screens', TANSYNC_DOMAIN ),
 		// 	'fields'			=> array(
 			// 	array(
 			// 		'id' 			=> 'text_field',
-			// 		'label'			=> __( 'Some Text' , 'tansync' ),
-			// 		'description'	=> __( 'This is a standard text field.', 'tansync' ),
+			// 		'label'			=> __( 'Some Text' , TANSYNC_DOMAIN ),
+			// 		'description'	=> __( 'This is a standard text field.', TANSYNC_DOMAIN ),
 			// 		'type'			=> 'text',
 			// 		'default'		=> '',
-			// 		'placeholder'	=> __( 'Placeholder text', 'tansync' )
+			// 		'placeholder'	=> __( 'Placeholder text', TANSYNC_DOMAIN )
 			// 	),
 			// 	array(
 			// 		'id' 			=> 'password_field',
-			// 		'label'			=> __( 'A Password' , 'tansync' ),
-			// 		'description'	=> __( 'This is a standard password field.', 'tansync' ),
+			// 		'label'			=> __( 'A Password' , TANSYNC_DOMAIN ),
+			// 		'description'	=> __( 'This is a standard password field.', TANSYNC_DOMAIN ),
 			// 		'type'			=> 'password',
 			// 		'default'		=> '',
-			// 		'placeholder'	=> __( 'Placeholder text', 'tansync' )
+			// 		'placeholder'	=> __( 'Placeholder text', TANSYNC_DOMAIN )
 			// 	),
 			// 	array(
 			// 		'id' 			=> 'secret_text_field',
-			// 		'label'			=> __( 'Some Secret Text' , 'tansync' ),
-			// 		'description'	=> __( 'This is a secret text field - any data saved here will not be displayed after the page has reloaded, but it will be saved.', 'tansync' ),
+			// 		'label'			=> __( 'Some Secret Text' , TANSYNC_DOMAIN ),
+			// 		'description'	=> __( 'This is a secret text field - any data saved here will not be displayed after the page has reloaded, but it will be saved.', TANSYNC_DOMAIN ),
 			// 		'type'			=> 'text_secret',
 			// 		'default'		=> '',
-			// 		'placeholder'	=> __( 'Placeholder text', 'tansync' )
+			// 		'placeholder'	=> __( 'Placeholder text', TANSYNC_DOMAIN )
 			// 	),
 			// 	array(
 			// 		'id' 			=> 'text_block',
-			// 		'label'			=> __( 'A Text Block' , 'tansync' ),
-			// 		'description'	=> __( 'This is a standard text area.', 'tansync' ),
+			// 		'label'			=> __( 'A Text Block' , TANSYNC_DOMAIN ),
+			// 		'description'	=> __( 'This is a standard text area.', TANSYNC_DOMAIN ),
 			// 		'type'			=> 'textarea',
 			// 		'default'		=> '',
-			// 		'placeholder'	=> __( 'Placeholder text for this textarea', 'tansync' )
+			// 		'placeholder'	=> __( 'Placeholder text for this textarea', TANSYNC_DOMAIN )
 			// 	),
 			// 	array(
 			// 		'id' 			=> 'single_checkbox',
-			// 		'label'			=> __( 'An Option', 'tansync' ),
-			// 		'description'	=> __( 'A standard checkbox - if you save this option as checked then it will store the option as \'on\', otherwise it will be an empty string.', 'tansync' ),
+			// 		'label'			=> __( 'An Option', TANSYNC_DOMAIN ),
+			// 		'description'	=> __( 'A standard checkbox - if you save this option as checked then it will store the option as \'on\', otherwise it will be an empty string.', TANSYNC_DOMAIN ),
 			// 		'type'			=> 'checkbox',
 			// 		'default'		=> ''
 			// 	),
 			// 	array(
 			// 		'id' 			=> 'select_box',
-			// 		'label'			=> __( 'A Select Box', 'tansync' ),
-			// 		'description'	=> __( 'A standard select box.', 'tansync' ),
+			// 		'label'			=> __( 'A Select Box', TANSYNC_DOMAIN ),
+			// 		'description'	=> __( 'A standard select box.', TANSYNC_DOMAIN ),
 			// 		'type'			=> 'select',
 			// 		'options'		=> array( 'drupal' => 'Drupal', 'joomla' => 'Joomla', 'wordpress' => 'WordPress' ),
 			// 		'default'		=> 'wordpress'
 			// 	),
 			// 	array(
 			// 		'id' 			=> 'radio_buttons',
-			// 		'label'			=> __( 'Some Options', 'tansync' ),
-			// 		'description'	=> __( 'A standard set of radio buttons.', 'tansync' ),
+			// 		'label'			=> __( 'Some Options', TANSYNC_DOMAIN ),
+			// 		'description'	=> __( 'A standard set of radio buttons.', TANSYNC_DOMAIN ),
 			// 		'type'			=> 'radio',
 			// 		'options'		=> array( 'superman' => 'Superman', 'batman' => 'Batman', 'ironman' => 'Iron Man' ),
 			// 		'default'		=> 'batman'
 			// 	),
 			// 	array(
 			// 		'id' 			=> 'multiple_checkboxes',
-			// 		'label'			=> __( 'Some Items', 'tansync' ),
-			// 		'description'	=> __( 'You can select multiple items and they will be stored as an array.', 'tansync' ),
+			// 		'label'			=> __( 'Some Items', TANSYNC_DOMAIN ),
+			// 		'description'	=> __( 'You can select multiple items and they will be stored as an array.', TANSYNC_DOMAIN ),
 			// 		'type'			=> 'checkbox_multi',
 			// 		'options'		=> array( 'square' => 'Square', 'circle' => 'Circle', 'rectangle' => 'Rectangle', 'triangle' => 'Triangle' ),
 			// 		'default'		=> array( 'circle', 'triangle' )
 			// 	),
 			// array(
 			// 	'id' 			=> 'number_field',
-			// 	'label'			=> __( 'A Number' , 'tansync' ),
-			// 	'description'	=> __( 'This is a standard number field - if this field contains anything other than numbers then the form will not be submitted.', 'tansync' ),
+			// 	'label'			=> __( 'A Number' , TANSYNC_DOMAIN ),
+			// 	'description'	=> __( 'This is a standard number field - if this field contains anything other than numbers then the form will not be submitted.', TANSYNC_DOMAIN ),
 			// 	'type'			=> 'number',
 			// 	'default'		=> '',
-			// 	'placeholder'	=> __( '42', 'tansync' )
+			// 	'placeholder'	=> __( '42', TANSYNC_DOMAIN )
 			// ),
 			// array(
 			// 	'id' 			=> 'colour_picker',
-			// 	'label'			=> __( 'Pick a colour', 'tansync' ),
-			// 	'description'	=> __( 'This uses WordPress\' built-in colour picker - the option is stored as the colour\'s hex code.', 'tansync' ),
+			// 	'label'			=> __( 'Pick a colour', TANSYNC_DOMAIN ),
+			// 	'description'	=> __( 'This uses WordPress\' built-in colour picker - the option is stored as the colour\'s hex code.', TANSYNC_DOMAIN ),
 			// 	'type'			=> 'color',
 			// 	'default'		=> '#21759B'
 			// ),
 			// array(
 			// 	'id' 			=> 'an_image',
-			// 	'label'			=> __( 'An Image' , 'tansync' ),
-			// 	'description'	=> __( 'This will upload an image to your media library and store the attachment ID in the option field. Once you have uploaded an imge the thumbnail will display above these buttons.', 'tansync' ),
+			// 	'label'			=> __( 'An Image' , TANSYNC_DOMAIN ),
+			// 	'description'	=> __( 'This will upload an image to your media library and store the attachment ID in the option field. Once you have uploaded an imge the thumbnail will display above these buttons.', TANSYNC_DOMAIN ),
 			// 	'type'			=> 'image',
 			// 	'default'		=> '',
 			// 	'placeholder'	=> ''
 			// ),
 			// array(
 			// 	'id' 			=> 'multi_select_box',
-			// 	'label'			=> __( 'A Multi-Select Box', 'tansync' ),
-			// 	'description'	=> __( 'A standard multi-select box - the saved data is stored as an array.', 'tansync' ),
+			// 	'label'			=> __( 'A Multi-Select Box', TANSYNC_DOMAIN ),
+			// 	'description'	=> __( 'A standard multi-select box - the saved data is stored as an array.', TANSYNC_DOMAIN ),
 			// 	'type'			=> 'select_multi',
 			// 	'options'		=> array( 'linux' => 'Linux', 'mac' => 'Mac', 'windows' => 'Windows' ),
 			// 	'default'		=> array( 'linux' )
@@ -209,35 +226,36 @@ class TanSync_Settings {
 		// );
 
 		$settings['Sync'] = array(
-			'title'				=> __( 'Sync Settings', 'tansync' ),
-			'description'		=> __( 'Extra User Fields that are synced with a remote target', 'tansync' ),
+			'title'				=> __( 'Sync Settings', TANSYNC_DOMAIN ),
+			'description'		=> __( 'Extra User Fields that are synced with a remote target', TANSYNC_DOMAIN ),
 			'fields'			=> array(
 				array(
 					'id' 			=> 'sync_field_settings',
-					'label'			=> __( 'Synchrnoised Field Settings' , 'tansync' ),
-					'description'	=> __( 'Enter user fields that are read from external source and whether this field is modified by WordPress', 'tansync' ),
+					'label'			=> __( 'Synchrnoised Field Settings' , TANSYNC_DOMAIN ),
+					'description'	=> __( 'Enter user fields that are read from external source and whether this field is modified by WordPress', TANSYNC_DOMAIN ),
 					'type'			=> 'textarea',
 					'default'		=> '',
-					'placeholder'	=> __( '{"<field_id_1>":<sync_params_1>, "<field_id_2>":<sync_params_2>, ...}', 'tansync' )
+					'placeholder'	=> __( '{"<field_id_1>":<sync_params_1>, "<field_id_2>":<sync_params_2>, ...}', TANSYNC_DOMAIN ),
+					'callback'		=> array(&$this, 'validate_json')
 				),	
 				array(
 					'id'			=> 'sync_email_enable',
 					'label'			=> 'Enable Synchronization Email',
-					'description'	=> __( 'Enables the service that emails staff regularly about user account changes', 'tansync'),
+					'description'	=> __( 'Enables the service that emails staff regularly about user account changes', TANSYNC_DOMAIN),
 					'type'			=> 'checkbox',
 					'default'		=> 'on'
 				),
 				array(
 					'id'			=> 'sync_email_interval',
 					'label'			=> 'Synchronization Email Interval',
-					'description'	=> __( 'Enter the Interval (in seconds) that the plugin checks for updated users', 'tansync'),
+					'description'	=> __( 'Enter the Interval (in seconds) that the plugin checks for updated users', TANSYNC_DOMAIN),
 					'type'			=> 'number',
 					'default'		=> 300
 				),
 				array(
 					'id'			=> 'sync_email_to',
-					'label'			=> __( 'Synchronize Email Address', 'tansync'),
-					'description'	=> __( 'Enter the email to which the synchronization messages are sent', 'tansync'),
+					'label'			=> __( 'Synchronize Email Address', TANSYNC_DOMAIN),
+					'description'	=> __( 'Enter the email to which the synchronization messages are sent', TANSYNC_DOMAIN),
 					'type'			=> 'text',
 					'default'		=> '',
 					'placeholder'	=> 'user@example.com'
@@ -246,17 +264,41 @@ class TanSync_Settings {
 		);
 
 		$settings['Targeted Content'] = array(
-			'title'				=> __( 'Targeted Content', 'tansync'),
+			'title'				=> __( 'Targeted Content', TANSYNC_DOMAIN),
 			'description'		=> __( 'Settings to determine how targeted content is displayed to the user'),
 			'fields'			=> array(
 				array(
 					'id'			=> 'targeted_content_conditions',
-					'label'			=> __('Targeted Content Conditions'),
-					'description'	=> __('Enter a list of page slugs and the conditions required to display those pages to the user', 'tansync'),
+					'label'			=> __('Targeted Content Conditions', TANSYNC_DOMAIN),
+					'description'	=> __('Enter a list of page slugs and the conditions required to display those pages to the user', TANSYNC_DOMAIN),
 					'type'			=> 'textarea',
 					'default'		=> '',
 					'placeholder'	=> __( '[{"slug":"page_slug_1", "Conditions":<page_conditions_1>}, {"slug":"page_slug_2", "condtions":<page_conditions_2>}]'),
+					'callback'		=> array(&$this, 'validate_json')					
 				),
+			)
+		);
+
+		$settings['Groups and Roles'] = array(
+			'title'				=> __( 'Groups and Roles', TANSYNC_DOMAIN),
+			'description'		=> __( 'Settings to determine how groups and roles are modified by synchronization'),
+			'fields'			=> array(
+				array(
+					'id'			=> 'role_field',
+					'label'			=> __('Role Field', TANSYNC_DOMAIN),
+					'description'	=> __('Enter the field which the role of a user is based on', TANSYNC_DOMAIN),
+					'type'			=> 'text',
+					'default'		=> '',
+					'placeholder'	=> 'act_role',
+				),
+				array(
+					'id'			=> 'enable_role_refresh',
+					'label'			=> __('Role Refresh', TANSYNC_DOMAIN),
+					'description'	=> __('Tick this box to allow Tansync to refresh all users\' roles and groups when this form is submitted'),
+					'type'			=> 'checkbox',
+					'default'		=> '',
+					'callback'		=> array(&$this, 'refresh_roles'),
+				)
 			)
 		);
 
@@ -323,7 +365,7 @@ class TanSync_Settings {
 
 		// Build page HTML
 		$html = '<div class="wrap" id="' . $this->parent->_token . '_settings">' . "\n";
-			$html .= '<h2>' . __( 'TanSync Settings' , 'tansync' ) . '</h2>' . "\n";
+			$html .= '<h2>' . __( 'TanSync Settings' , TANSYNC_DOMAIN ) . '</h2>' . "\n";
 
 			$tab = '';
 			if ( isset( $_GET['tab'] ) && $_GET['tab'] ) {
@@ -375,7 +417,7 @@ class TanSync_Settings {
 
 				$html .= '<p class="submit">' . "\n";
 					$html .= '<input type="hidden" name="tab" value="' . esc_attr( $tab ) . '" />' . "\n";
-					$html .= '<input name="Submit" type="submit" class="button-primary" value="' . esc_attr( __( 'Save Settings' , 'tansync' ) ) . '" />' . "\n";
+					$html .= '<input name="Submit" type="submit" class="button-primary" value="' . esc_attr( __( 'Save Settings' , TANSYNC_DOMAIN ) ) . '" />' . "\n";
 				$html .= '</p>' . "\n";
 			$html .= '</form>' . "\n";
 		$html .= '</div>' . "\n";

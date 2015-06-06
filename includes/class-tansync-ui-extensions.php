@@ -25,7 +25,7 @@ class Tansync_UI_Extensions
 
 	function __construct($parent)
 	{
-		error_log("Tansync_UI_Extensions Constructor");
+		// error_log("Tansync_UI_Extensions Constructor");
 		$this->parent = $parent;
 		$this->settings = $parent->settings;
 		$this->synchronization = $parent->synchronization;
@@ -166,11 +166,11 @@ class Tansync_UI_Extensions
 	public function modify_contact_fields($profile_fields) {
 		$extra_fields = $this->get_contact_fields();
 		$core_fields = $this->get_user_edit_fields();
-		error_log("contact fields: ");
+		// error_log("contact fields: ");
 		foreach ($extra_fields as $slug => $params) {
 			if(in_array($slug, $core_fields)) continue;
 			$label = isset($params->label)?$params->label:$slug;
-			error_log(" -> $slug: $label");
+			// error_log(" -> $slug: $label");
 			$profile_fields[$slug] = $label;
 		}
 		return $profile_fields;
@@ -178,7 +178,7 @@ class Tansync_UI_Extensions
 
 	public function modify_user_edit_admin(){
 		global $pagenow;
-		error_log("pagenow: ".serialize($pagenow));
+		// error_log("pagenow: ".serialize($pagenow));
 		// User-Edit Contact Methods
 		if(in_array($pagenow, array("user-edit.php", "profile.php"))){
 			// $this->synchronization->process_pending_updates();
@@ -214,7 +214,7 @@ class Tansync_UI_Extensions
 
 	private function evaluate_condition($type, $parameters){
 		//TODO: actually evaluate conditions
-		if(WP_DEBUG and TANSYNC_DEBUG) error_log("--> evaluating condition: $type | ".serialize($parameters) );
+		// if(WP_DEBUG and TANSYNC_DEBUG) error_log("--> evaluating condition: $type | ".serialize($parameters) );
 		switch ($type) {
 			case 'allowed_roles':
 				if($parameters){
@@ -225,13 +225,13 @@ class Tansync_UI_Extensions
 					}
 					assert(is_array($allowed_roles));
 					$current_roles = $this->get_current_user_roles();
-					if(WP_DEBUG and TANSYNC_DEBUG) error_log("---> current roles: ".serialize($current_roles));
+					// if(WP_DEBUG and TANSYNC_DEBUG) error_log("---> current roles: ".serialize($current_roles));
 					$intersect = array_intersect($current_roles, $allowed_roles);
 					if(sizeof($intersect) == 0){
-						if(WP_DEBUG and TANSYNC_DEBUG) error_log("---> condition failed");
+						// if(WP_DEBUG and TANSYNC_DEBUG) error_log("---> condition failed");
 						return false;
 					} else {
-						if(WP_DEBUG and TANSYNC_DEBUG) error_log("---> condition passed");
+						// if(WP_DEBUG and TANSYNC_DEBUG) error_log("---> condition passed");
 						return true;
 					}
 				}
@@ -240,22 +240,22 @@ class Tansync_UI_Extensions
 				# code...
 				break;
 		}
-		if(WP_DEBUG and TANSYNC_DEBUG) error_log("---> condition passed by default");
+		// if(WP_DEBUG and TANSYNC_DEBUG) error_log("---> condition passed by default");
 		return true;
 	}
 
 	private function process_targeted_content_conditions($specs){
-		if(WP_DEBUG and TANSYNC_DEBUG) error_log("\nProcessing Targeted Content Conditions | specs: ".serialize($specs));
+		// if(WP_DEBUG and TANSYNC_DEBUG) error_log("\nProcessing Targeted Content Conditions | specs: ".serialize($specs));
 		// assert($specs and is_array($specs));
 		$slugs = array();
 		foreach ($specs as $spec) {
 			$slug = isset($spec->slug)?$spec->slug:"";
-			if(WP_DEBUG and TANSYNC_DEBUG) error_log("-> processing slug: $slug");
+			// if(WP_DEBUG and TANSYNC_DEBUG) error_log("-> processing slug: $slug");
 			if(!$slug){
-				if(WP_DEBUG and TANSYNC_DEBUG) error_log("--> invalid slug: $slug");
+				// if(WP_DEBUG and TANSYNC_DEBUG) error_log("--> invalid slug: $slug");
 			} 
 			if( in_array($slug, array_keys($slugs))) {
-				if(WP_DEBUG and TANSYNC_DEBUG) error_log("--> already validated slug: $slug");
+				// if(WP_DEBUG and TANSYNC_DEBUG) error_log("--> already validated slug: $slug");
 			}
 			$conditions = isset($spec->conditions)?$spec->conditions:array();
 
@@ -268,12 +268,12 @@ class Tansync_UI_Extensions
 				}
 			}
 			if(!$passed) {
-				if(WP_DEBUG and TANSYNC_DEBUG) error_log("--> skipping $slug");
+				// if(WP_DEBUG and TANSYNC_DEBUG) error_log("--> skipping $slug");
 				continue;
 			}
 
 			$label = isset($spec->label)?$spec->label:$slug;
-			if(WP_DEBUG and TANSYNC_DEBUG) error_log("--> adding slug: $slug");
+			// if(WP_DEBUG and TANSYNC_DEBUG) error_log("--> adding slug: $slug");
 			$slugs[$slug] = $label;
 		}
 		return $slugs;
@@ -342,15 +342,15 @@ class Tansync_UI_Extensions
 		add_action(
 			'woocommerce_save_account_details',
 			function($user_id) use ($extra_fields){
-				if(WP_DEBUG and TANSYNC_DEBUG) error_log("in woocommerce_save_account_details closure | user_id: $user_id");
+				// if(WP_DEBUG and TANSYNC_DEBUG) error_log("in woocommerce_save_account_details closure | user_id: $user_id");
 				$current_user = get_user_by( 'id', $user_id);
 				foreach($extra_fields as $slug => $params){
 					$default = isset($params->default)?$params->default:'';
 					$value = (isset($_POST[$slug]) and !empty($_POST[$slug]))?wc_clean($_POST[$slug]):$default;
 					if(WP_DEBUG and TANSYNC_DEBUG) {
-						error_log(" -> slug:$slug ");
-						error_log(" -> default:$default");
-						error_log(" -> value:$value");
+						// error_log(" -> slug:$slug ");
+						// error_log(" -> default:$default");
+						// error_log(" -> value:$value");
 					}
 					update_user_meta($user_id, $slug, $value);
 				}		
@@ -363,28 +363,28 @@ class Tansync_UI_Extensions
 
 	public function filter_acui_columns(){
 		$acui_columns = get_option("acui_columns"); 
-		error_log("acui_columns: ".serialize($acui_columns));
-		error_log(" -> acui is_array ". is_array($acui_columns));
-		error_log(" -> acui not empty ". !empty($acui_columns));
+		// error_log("acui_columns: ".serialize($acui_columns));
+		// error_log(" -> acui is_array ". is_array($acui_columns));
+		// error_log(" -> acui not empty ". !empty($acui_columns));
 		if(is_array($acui_columns) && !empty($acui_columns)){
-			error_log("made it this far");
+			// error_log("made it this far");
 			$new_columns = array();
 			$extra_fields = array_keys($this->get_contact_fields());
 			$core_fields = $this->get_user_edit_fields();
-			error_log("extra fields: ".serialize($extra_fields));
-			error_log("core fields: ".serialize($core_fields));
+			// error_log("extra fields: ".serialize($extra_fields));
+			// error_log("core fields: ".serialize($core_fields));
 			foreach ($acui_columns as $key => $column) {
-				error_log("evaluating key, col".serialize($key).serialize($column));
+				// error_log("evaluating key, col".serialize($key).serialize($column));
 				if(in_array($column, $extra_fields)) {
-					error_log('removing column because extra '.$column);
+					// error_log('removing column because extra '.$column);
 					continue;
 				}
 				if(in_array($column, $core_fields)) {
-					error_log('removing column because core '.$column);
+					// error_log('removing column because core '.$column);
 					continue;
 				}
 				if(in_array($column, $new_columns)) {
-					error_log('removing column because not unique '.$column);
+					// error_log('removing column because not unique '.$column);
 					continue;
 				}
 				array_push($new_columns, $column);

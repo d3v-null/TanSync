@@ -97,6 +97,24 @@
         "sync_egress":1,
         "sync_ingress":1
     },
+    "act_role":{
+        "label":"Role",
+        "sync_egress":1,
+        "sync_ingress":1        
+    },
+    "abn":{
+        "label":"ABN",
+        "profile_display": 1,
+        "profile_modify": 1,
+        "sync_egress":1,
+        "sync_ingress":1
+    },
+    "business_type":{
+        "label":"Business Type",
+        "profile_display":1,
+        "sync_egress":1,
+        "sync_ingress":1        
+    },
     "client_grade": {
         "label": "TechnoTan Grade",
         "profile_display": 1,
