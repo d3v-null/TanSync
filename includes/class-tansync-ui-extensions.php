@@ -357,8 +357,14 @@ class Tansync_UI_Extensions
 			},
 			0
 		);
-		add_action( 'woocommerce_save_account_details', array(&$this, 'sync_user'),	999 );
+		// add_action( 'woocommerce_save_account_details', array(&$this, 'sync_user'),	999 );
 
+	}
+
+	public function sync_user($userid){
+		error_log("called sync_user ".serialize($userid));
+		$synchronization = $this->parent->synchronization;
+		$synchronization->queue_update($user_id);
 	}
 
 	public function filter_acui_columns(){
