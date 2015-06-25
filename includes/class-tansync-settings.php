@@ -272,7 +272,6 @@ class TanSync_Settings {
 					'label'			=> __('Targeted Content Conditions', TANSYNC_DOMAIN),
 					'description'	=> __('Enter a list of page slugs and the conditions required to display those pages to the user', TANSYNC_DOMAIN),
 					'type'			=> 'textarea',
-					'default'		=> '',
 					'placeholder'	=> __( '[{"slug":"page_slug_1", "Conditions":<page_conditions_1>}, {"slug":"page_slug_2", "condtions":<page_conditions_2>}]'),
 					'callback'		=> array(&$this, 'validate_json')					
 				),
@@ -288,8 +287,21 @@ class TanSync_Settings {
 					'label'			=> __('Role Field', TANSYNC_DOMAIN),
 					'description'	=> __('Enter the field which the role of a user is based on', TANSYNC_DOMAIN),
 					'type'			=> 'text',
-					'default'		=> '',
 					'placeholder'	=> 'act_role',
+				),
+				array(
+					'id'			=> 'group_role_mapping',
+					'label'			=> __('Group Role Mapping', TANSYNC_DOMAIN),
+					'description'	=> __('Enter the mapping which is used to determine the users role', TANSYNC_DOMAIN),
+					'type'			=> 'textarea',
+					'placeholder'	=> implode('\n', array(
+							'{',
+							'	"ADMIN":{',
+							'		"Roles":["Administrator"],',
+							'		"Groups":["Registered", "Wholesale", "Distributor"]',
+							'	}',
+							'}'
+						) ),
 				),
 				array(
 					'id'			=> 'enable_role_refresh',
