@@ -40,7 +40,7 @@ require_once( 'includes/lib/class-tansync-taxonomy.php' );
  * @return object TanSync
  */
 function TanSync () {
-	error_log("Tansync function");
+	if(TANSYNC_DEBUG) error_log("Tansync function");
 
     $instance = TanSync::instance( __FILE__, '1.0.0' );
 

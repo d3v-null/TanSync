@@ -51,6 +51,7 @@ class Tansync_Synchronization{
             'direction' => 'int NOT NULL',
             'status' => 'int NOT NULL',
             'time' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL',
+            'changed' => 'text NOT NULL',
             'data' => 'text NOT NULL',
         ),
         'unique key' => 'UNIQUE KEY id (id)'
@@ -215,24 +216,26 @@ class Tansync_Synchronization{
 
             // filter only sync'd fields
             $syncdata = array();
+            $changed = array()
             $syncfields = $this->get_synced_fields();
-            error_log("userdata: ");
+            // error_log("userdata: ");
             foreach ($syncfields as $key => $label) {
                 if (isset($userdata[$key])){
+                    $syncdata[$label] = $userdata[$key];
                     // error_log(" => $key|$label NEW: ".serialize($userdata[$key]));
                     if(isset($userdata_old[$key])){
                         // error_log(" => $key|$label OLD: ".serialize($userdata_old[$key]));
                         if($userdata[$key] == $userdata_old[$key]){
                             // error_log("value $key has not changed");
                             continue;
-
                         }
                     }
-                    $syncdata[$label] = $userdata[$key];
+                    $changed[$label] = $userdata[$key];
                 }
             }
 
             $userstring = json_encode($syncdata);
+            $changestring = json_encode($changed);
 
             global $wpdb;
 
@@ -244,12 +247,14 @@ class Tansync_Synchronization{
                     'user_id' => $userid,
                     'direction' => TANSYNC_EGRESS,
                     'status' => TANSYNC_VIRGIN,
+                    'changed' => $changestring,
                     'data' => $userstring
                 ),
                 array(
                     'user_id' => '%d',
                     'direction' => '%d',
                     'status' => '%d',
+                    'changed' => '%s',
                     'data' => '%s'
                 )
             );        
@@ -359,6 +364,10 @@ class Tansync_Synchronization{
                         $email_message .= "</tr>";
                     }
                     $email_message .= "</table>";
+                    $email_message .= "<p>";
+                    $email_message .= "<strong>synced fields: </strong>";
+                    $email_message .= serialize($this->get_synced_fields());
+                    $email_message .= "</p>";
                     $email_message .= "</html>";
 
                     // error_log("update report email firing: ");
