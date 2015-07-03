@@ -2,15 +2,22 @@
     "user_email": {
         "sync_label": "E-mail",
         "sync_egress": 1,
-        "sync_ingress": 1
+        "sync_ingress": 1,
+        "core": 1,
     },
     "user_url": {
         "sync_label": "Web Site",
         "sync_egress": 1,
-        "sync_ingress": 1
+        "sync_ingress": 1,
+        "core": 1,
     },
     "myob_customer_card_id": {
         "sync_label": "MYOB Customer Card ID",
+        "sync_egress": 1,
+        "sync_ingress": 1
+    },
+    "myob_card_id": {
+        "sync_label": "MYOB Card ID",
         "sync_egress": 1,
         "sync_ingress": 1
     },

@@ -216,7 +216,7 @@ class Tansync_Synchronization{
 
             // filter only sync'd fields
             $syncdata = array();
-            $changed = array()
+            $changed = array();
             $syncfields = $this->get_synced_fields();
             // error_log("userdata: ");
             foreach ($syncfields as $key => $label) {
@@ -286,7 +286,7 @@ class Tansync_Synchronization{
         $update_table_name = $wpdb->prefix . $this->update_table_suffix ;
         $sql = $wpdb->prepare(
             "
-                SELECT ud.user_id, ud.data
+                SELECT ud.user_id, ud.data, ud.changed
                 FROM 
                     $update_table_name ud
                     INNER JOIN(
@@ -346,23 +346,28 @@ class Tansync_Synchronization{
             $time_to    = $now;
             $updates = $this->get_unsyncd_updates($time_from, $time_to);
             if($updates and !empty($updates)){
+
                 $email_recipient = $this->settings->get_option('sync_email_to');
                 if($email_recipient){
-                    foreach ($updates as $update) {
-                        $update_json = json_decode($update['data']);
-                        
-                    }
-
-
                     $email_message = "UPDATES: \n";
                     $email_message .= "<table>";
-                    $email_message .= "<tr><td>UserID</td><td>Changes</td></tr>";
+                    $email_message .= "<tr><td>UserID</td><td>Changes</td><td>Data</td></tr>";
+                    $no_updates = true;
                     foreach($updates as $update){
+                        if ($update['changed'] = '[]'){
+                            continue;
+                        } else {
+                            $no_updates = false;
+                        }
                         $email_message .= "<tr>";
                         $email_message .= "<td>".$update['user_id']."</td>";
+                        $email_message .= "<td>".$update['changed']."</td>";
                         $email_message .= "<td>".$update['data']."</td>";
                         $email_message .= "</tr>";
                     }
+
+                    if($no_updates) return;
+
                     $email_message .= "</table>";
                     $email_message .= "<p>";
                     $email_message .= "<strong>synced fields: </strong>";
