@@ -369,10 +369,10 @@ class Tansync_Synchronization{
                     if($no_updates) return;
 
                     $email_message .= "</table>";
-                    $email_message .= "<p>";
-                    $email_message .= "<strong>synced fields: </strong>";
-                    $email_message .= serialize($this->get_synced_fields());
-                    $email_message .= "</p>";
+                    // $email_message .= "<p>";
+                    // $email_message .= "<strong>synced fields: </strong>";
+                    // $email_message .= serialize($this->get_synced_fields());
+                    // $email_message .= "</p>";
                     $email_message .= "</html>";
 
                     // error_log("update report email firing: ");

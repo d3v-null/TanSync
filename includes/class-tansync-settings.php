@@ -288,20 +288,36 @@ class TanSync_Settings {
 					'description'	=> __('Enter the field which the role of a user is based on', TANSYNC_DOMAIN),
 					'type'			=> 'text',
 					'placeholder'	=> 'act_role',
+					'default' 		=> 'act_role',
+				),
+				array(
+					'id'			=> 'default_role',
+					'label'			=> __('Default Role', TANSYNC_DOMAIN),
+					'description'	=> __('Enter the role which a user defaults to', TANSYNC_DOMAIN),
+					'type'			=> 'text',
+					'placeholder'	=> 'RN',
+					'default'		=> 'RN'
 				),
 				array(
 					'id'			=> 'group_role_mapping',
 					'label'			=> __('Group Role Mapping', TANSYNC_DOMAIN),
 					'description'	=> __('Enter the mapping which is used to determine the users role', TANSYNC_DOMAIN),
 					'type'			=> 'textarea',
-					'placeholder'	=> implode('\n', array(
-							'{',
-							'	"ADMIN":{',
-							'		"Roles":["Administrator"],',
-							'		"Groups":["Registered", "Wholesale", "Distributor"]',
-							'	}',
-							'}'
-						) ),
+					'placeholder'	=> 
+'{
+	"ADMIN":{
+		"roles":["administrator"],
+		"groups":["Registered", "Wholesale", "Distributor"]
+	},
+	"WN":{
+		"roles":["wn"],
+		"groups":["Registered", "Wholesale"]
+	},
+	"RN":{
+		"roles":["rn"],
+		"groups":["Registered"]
+	}
+}',
 				),
 				array(
 					'id'			=> 'enable_role_refresh',

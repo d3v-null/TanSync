@@ -160,6 +160,7 @@
     },
     "how_hear_about":{
         "label":"How did you hear about us?",
+        "sync_label":"Lead Source",
         "sync_egress":1,
         "sync_ingress":1
     },

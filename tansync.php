@@ -19,7 +19,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define('TANSYNC_DEBUG', false);
+define('TANSYNC_DEBUG', true);
 define( 'TANSYNC_DOMAIN', 'tansync');
 
 // Load plugin class files
@@ -27,6 +27,7 @@ require_once( 'includes/class-tansync.php' );
 require_once( 'includes/class-tansync-settings.php' );
 require_once( 'includes/class-tansync-ui-extensions.php' );
 require_once( 'includes/class-tansync-synchronization.php' );
+require_once( 'includes/class-tansync-groups-roles.php' );
 
 // Load plugin libraries
 require_once( 'includes/lib/class-tansync-admin-api.php' );
@@ -55,6 +56,8 @@ function TanSync () {
     $instance->extra_fields = Tansync_UI_Extensions::instance( $instance );
     // if ( 1 or is_null( $instance->extra_fields ) ) {
     // }
+
+    $instance->groups_roles = Tansync_Groups_Roles::instance( $instance );
 
 	return $instance;
 }
