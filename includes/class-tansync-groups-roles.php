@@ -15,7 +15,9 @@ class Tansync_Groups_Roles
         $this->parent = $parent;
 
         // add_action('plugins_loaded', array(&$this, 'test_refresh_user'));
-        add_action('plugins_loaded', array(&$this, 'role_refresh'));
+        add_action('plugins_loaded', array(&$this, 'maybe_role_refresh'));
+
+        add_action( 'profile_update', array(&$this, 'refresh_user'), 2, 1);
     }
 
     public function test_refresh_user(){
