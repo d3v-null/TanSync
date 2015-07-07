@@ -30,6 +30,7 @@ class Tansync_Groups_Roles
             error_log("refreshing user ".serialize($user->ID));
             $this->refresh_user($user->ID);
         }
+        error_log("completed refresh");
     }
 
     // public function maybe_role_refresh(){
@@ -117,7 +118,7 @@ class Tansync_Groups_Roles
             if(TANSYNC_DEBUG) error_log("groups: ".serialize($groups) );
             // $groups = $guser->group_ids;
             if($groups) foreach ($groups as $group) {
-                $gid = $group->id;
+                $gid = $group->group_id;
                 $gname = $group->name;
                 if(TANSYNC_DEBUG) error_log(" -> group: $gname");
                 if(in_array($gname, $expected_groups)){
@@ -125,7 +126,10 @@ class Tansync_Groups_Roles
                     $expected_groups = array_diff($expected_groups, array($gname));
                 } else {
                     if(TANSYNC_DEBUG) error_log(" --> was not expected");
-                    Groups_User_Group::delete($userid, $gname);
+                    if(TANSYNC_DEBUG) error_log(" ---> user_id: ".serialize($userid));
+                    if(TANSYNC_DEBUG) error_log(" ---> group_id: ".serialize($gid));
+                    $result = Groups_User_Group::delete($userid, $gid);
+                    if(TANSYNC_DEBUG) error_log(" ---> result: ".serialize($result));
                 }
             }
             if(TANSYNC_DEBUG) error_log("remaining groups: ".serialize($expected_groups));

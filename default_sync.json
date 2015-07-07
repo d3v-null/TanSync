@@ -3,13 +3,13 @@
         "sync_label": "E-mail",
         "sync_egress": 1,
         "sync_ingress": 1,
-        "core": 1,
+        "core": 1
     },
     "user_url": {
         "sync_label": "Web Site",
         "sync_egress": 1,
         "sync_ingress": 1,
-        "core": 1,
+        "core": 1
     },
     "myob_customer_card_id": {
         "sync_label": "MYOB Customer Card ID",
@@ -106,6 +106,7 @@
     },
     "act_role":{
         "label":"Role",
+        "profile_display": 1,
         "sync_egress":1,
         "sync_ingress":1        
     },
@@ -205,7 +206,7 @@
         "contact_method": 1
     },
     "instagram":{
-        "label":"Ingragram",
+        "label":"Instagram",
         "profile_display": 1,
         "profile_modify": 1,
         "contact_method": 1
