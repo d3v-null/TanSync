@@ -113,8 +113,8 @@ class TanSync_Settings {
 
 	public function refresh_roles( $check ){
 		if($check){
-			//refresh roles
-			// TODO
+			$groups_roles = $this->parent->groups_roles;
+			$groups_roles->role_refresh();
 			return false;
 		} 
 	}
@@ -303,6 +303,7 @@ class TanSync_Settings {
 					'label'			=> __('Group Role Mapping', TANSYNC_DOMAIN),
 					'description'	=> __('Enter the mapping which is used to determine the users role', TANSYNC_DOMAIN),
 					'type'			=> 'textarea',
+					'callback'		=> array(&$this, 'validate_json'),
 					'placeholder'	=> 
 '{
 	"ADMIN":{
@@ -317,6 +318,14 @@ class TanSync_Settings {
 		"roles":["xrn"],
 		"groups":["Registered", "Export"]
 	},
+	"RP":{
+		"roles":["rp"],
+		"groups":["Registered", "Local", "Preferred"]
+	},
+	"XRN":{
+		"roles":["xrp"],
+		"groups":["Registered", "Export", "Preferred"]
+	},
 	"WN":{
 		"roles":["wn"],
 		"groups":["Registered", "Wholesale", "Local"]
@@ -325,6 +334,14 @@ class TanSync_Settings {
 		"roles":["xwn"],
 		"groups":["Registered", "Wholesale", "Export"]
 	},
+	"WP":{
+		"roles":["wp"],
+		"groups":["Registered", "Wholesale", "Local", "Preferred"]
+	},
+	"XWP":{
+		"roles":["xwp"],
+		"groups":["Registered", "Wholesale", "Export", "Preferred"]
+	},
 	"DN":{
 		"roles":["dn"],
 		"groups":["Registered","Distributor", "Local"]
@@ -332,6 +349,14 @@ class TanSync_Settings {
 	"XDN":{
 		"roles":["xdn"],
 		"groups":["Registered","Distributor", "Export"]
+	},
+	"DP":{
+		"roles":["dp"],
+		"groups":["Registered","Distributor", "Local", "Preferred"]
+	},
+	"XDP":{
+		"roles":["xdp"],
+		"groups":["Registered","Distributor", "Export", "Preferred"]
 	}
 }',
 				),

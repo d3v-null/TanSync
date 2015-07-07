@@ -15,31 +15,33 @@ class Tansync_Groups_Roles
         $this->parent = $parent;
 
         // add_action('plugins_loaded', array(&$this, 'test_refresh_user'));
-        add_action('plugins_loaded', array(&$this, 'maybe_role_refresh'));
+        // add_action('plugins_loaded', array(&$this, 'maybe_role_refresh'));
 
         add_action( 'profile_update', array(&$this, 'refresh_user'), 2, 1);
     }
 
-    public function test_refresh_user(){
-        $userid = 1;
-        $this->refresh_user(1);
-    }
+    // public function test_refresh_user(){
+    //     $this->refresh_user(1);
+    // }
 
     public function role_refresh(){
         $users = get_users();
         foreach ($users as $user) {
+            error_log("refreshing user ".serialize($user->ID));
             $this->refresh_user($user->ID);
         }
     }
 
-    public function maybe_role_refresh(){
-        $settings = $this->parent->settings;
-        $refresh_roles = $settings->get_option('refresh_roles');
-        if( $refresh_roles ){
-            $settings->set_option('refresh_roles', false);
-            $this->role_refresh();
-        }
-    }
+    // public function maybe_role_refresh(){
+    //     $settings = $this->parent->settings;
+    //     $refresh_roles = $settings->get_option('enable_role_refresh');
+    //     error_log("refreshing roles: ".serialize($refresh_roles));
+    //     if( $refresh_roles ){
+    //         $return = $settings->set_option('refresh_roles', '');
+    //         error_log("refresh_roles returned".serialize($return));
+    //         $this->role_refresh();
+    //     }
+    // }
 
 
     public function get_group_role_mapping(){

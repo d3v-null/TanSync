@@ -59,7 +59,7 @@ class Tansync_Synchronization{
 
     function __construct($parent)
     {
-        if(TANSYNC_DEBUG) error_log("calling Tansync_Synchronization -> __construct");
+        // if(TANSYNC_DEBUG) error_log("calling Tansync_Synchronization -> __construct");
 
         $this->parent = $parent;
         $this->settings = $parent->settings;
