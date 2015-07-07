@@ -34,8 +34,8 @@ class Tansync_Groups_Roles
         $settings = $this->parent->settings;
         $refresh_roles = $settings->get_option('refresh_roles');
         if( $refresh_roles ){
-            $this->role_refresh();
             $settings->set_option('refresh_roles', false);
+            $this->role_refresh();
         }
     }
 
@@ -71,9 +71,13 @@ class Tansync_Groups_Roles
     }
 
     public function get_user_master_role($userid){
+        error_log("getting user master role ".$userid);
         $master_field = $this->get_master_role_field();
+        error_log(" -> master field: ".$master_field);
         $default_role = $this->get_default_role();
+        error_log(" -> default role: ".$default_role);
         $usermeta = get_user_meta($userid, $master_field, true);
+        error_log(" -> user meta value: ".serialize($usermeta));
         if($usermeta){
             return $usermeta;
         } else {
@@ -85,9 +89,9 @@ class Tansync_Groups_Roles
         if(!$master_role){
             $master_role = $this->get_user_master_role($userid);
         }
-        if(WP_DEBUG and TANSYNC_DEBUG) error_log("user: $userid");
+        if(TANSYNC_DEBUG) error_log("user: $userid");
         $master_roles = explode('|', $master_role);
-        if(WP_DEBUG and TANSYNC_DEBUG) error_log("master_roles: ".serialize($master_roles));
+        if(TANSYNC_DEBUG) error_log("master_roles: ".serialize($master_roles));
         $mapping = $this->get_group_role_mapping();
         $expected_roles = [];
         $expected_groups = [];
@@ -102,31 +106,31 @@ class Tansync_Groups_Roles
                 }
             }
         }
-        if(WP_DEBUG and TANSYNC_DEBUG) error_log("expected_groups: ".serialize($expected_groups));
+        if(TANSYNC_DEBUG) error_log("expected_groups: ".serialize($expected_groups));
         if (class_exists("Groups_User")){ //if groups is installed
             $guser = new Groups_User($userid);
             $groups = $guser->groups;
-            if(WP_DEBUG and TANSYNC_DEBUG) error_log("groups: ".serialize($groups) );
+            if(TANSYNC_DEBUG) error_log("groups: ".serialize($groups) );
             // $groups = $guser->group_ids;
             if($groups) foreach ($groups as $group) {
                 $gid = $group->id;
                 $gname = $group->name;
-                if(WP_DEBUG and TANSYNC_DEBUG) error_log(" -> group: $gname");
+                if(TANSYNC_DEBUG) error_log(" -> group: $gname");
                 if(in_array($gname, $expected_groups)){
-                    if(WP_DEBUG and TANSYNC_DEBUG) error_log(" --> was expected");
+                    if(TANSYNC_DEBUG) error_log(" --> was expected");
                     $expected_groups = array_diff($expected_groups, array($gname));
                 } else {
-                    if(WP_DEBUG and TANSYNC_DEBUG) error_log(" --> was not expected");
+                    if(TANSYNC_DEBUG) error_log(" --> was not expected");
                     Groups_User_Group::delete($userid, $gname);
                 }
             }
-            if(WP_DEBUG and TANSYNC_DEBUG) error_log("remaining groups: ".serialize($expected_groups));
+            if(TANSYNC_DEBUG) error_log("remaining groups: ".serialize($expected_groups));
             foreach ($expected_groups as $gname) {
                 $group = Groups_Group::read_by_name($gname);
                 if($group){
-                    if(WP_DEBUG and TANSYNC_DEBUG) error_log(" -> group exists: ".serialize($gname));
+                    if(TANSYNC_DEBUG) error_log(" -> group exists: ".serialize($gname));
                     $gid = $group->group_id;
-                    if(WP_DEBUG and TANSYNC_DEBUG) error_log(" --> gid: ".serialize($gid));
+                    if(TANSYNC_DEBUG) error_log(" --> gid: ".serialize($gid));
                     Groups_User_Group::create(
                         array(
                             'group_id'  => $gid,
@@ -134,32 +138,32 @@ class Tansync_Groups_Roles
                         )
                     );
                 } else {
-                    if(WP_DEBUG and TANSYNC_DEBUG) error_log(" -> group doesn't exist: ".serialize($gname));
+                    if(TANSYNC_DEBUG) error_log(" -> group doesn't exist: ".serialize($gname));
                 }
             }
         }
-        if(WP_DEBUG and TANSYNC_DEBUG) error_log("expected_roles: ".serialize($expected_roles));
+        if(TANSYNC_DEBUG) error_log("expected_roles: ".serialize($expected_roles));
         $user = new WP_User($userid);
         $roles = $user->roles;
         // $expected_roles = ['administrator'];
-        if(WP_DEBUG and TANSYNC_DEBUG) error_log("roles: ".serialize($roles) );
+        if(TANSYNC_DEBUG) error_log("roles: ".serialize($roles) );
         foreach ($roles as $role) {
-            if(WP_DEBUG and TANSYNC_DEBUG) error_log(" -> role: $role");
+            if(TANSYNC_DEBUG) error_log(" -> role: $role");
             if(in_array($role, $expected_roles)){
-                if(WP_DEBUG and TANSYNC_DEBUG) error_log(" --> expected");
+                if(TANSYNC_DEBUG) error_log(" --> expected");
                 $expected_roles = array_diff($expected_roles, array($role));
             } else {
-                if(WP_DEBUG and TANSYNC_DEBUG) error_log(" --> unexpected");
+                if(TANSYNC_DEBUG) error_log(" --> unexpected");
                 $user->remove_role($role);
             }
         }
-        if(WP_DEBUG and TANSYNC_DEBUG) error_log("remaining roles: ".serialize($expected_roles));
+        if(TANSYNC_DEBUG) error_log("remaining roles: ".serialize($expected_roles));
         foreach ($expected_roles as $role) {
             if($role and $GLOBALS['wp_roles']->is_role( $role )){
-                if(WP_DEBUG and TANSYNC_DEBUG) error_log(" -> is role: ".serialize($role));
+                if(TANSYNC_DEBUG) error_log(" -> is role: ".serialize($role));
                 $user->add_role($role);
             } else {
-                if(WP_DEBUG and TANSYNC_DEBUG) error_log(" -> not role: ".serialize($role));
+                if(TANSYNC_DEBUG) error_log(" -> not role: ".serialize($role));
             }
         }
     }

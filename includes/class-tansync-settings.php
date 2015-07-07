@@ -307,15 +307,31 @@ class TanSync_Settings {
 '{
 	"ADMIN":{
 		"roles":["administrator"],
-		"groups":["Registered", "Wholesale", "Distributor"]
-	},
-	"WN":{
-		"roles":["wn"],
-		"groups":["Registered", "Wholesale"]
+		"groups":["Registered", "Wholesale", "Distributor", "Admin"]
 	},
 	"RN":{
 		"roles":["rn"],
-		"groups":["Registered"]
+		"groups":["Registered", "Local"]
+	},
+	"XRN":{
+		"roles":["xrn"],
+		"groups":["Registered", "Export"]
+	},
+	"WN":{
+		"roles":["wn"],
+		"groups":["Registered", "Wholesale", "Local"]
+	},
+	"XWN":{
+		"roles":["xwn"],
+		"groups":["Registered", "Wholesale", "Export"]
+	},
+	"DN":{
+		"roles":["dn"],
+		"groups":["Registered","Distributor", "Local"]
+	},
+	"XDN":{
+		"roles":["xdn"],
+		"groups":["Registered","Distributor", "Export"]
 	}
 }',
 				),
