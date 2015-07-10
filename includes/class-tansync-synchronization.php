@@ -64,6 +64,7 @@ class Tansync_Synchronization{
         $this->parent = $parent;
         $this->settings = $parent->settings;
 
+        add_action( 'init', array(&$this, 'store_initial_userdata'));
         // do_action( 'profile_update', $userid, $old_userdata );
         add_action( 'profile_update', array(&$this, 'handle_profile_update'), 1, 2);
         // do_action( 'user_register', $userid );
@@ -71,6 +72,7 @@ class Tansync_Synchronization{
 
         add_action( 'plugins_loaded', array(&$this, 'update_report_email'), 1 );
     }
+
 
     public function install_tables(){
         error_log("calling Tansync_Synchronization -> install_tables");
@@ -149,6 +151,39 @@ class Tansync_Synchronization{
 
     }
 
+    public function get_userdata($userid){
+        $usermeta = get_user_meta( $userid );
+        if($usermeta){
+            error_log("usermeta ".serialize($usermeta));           
+        } else {
+            $usermeta = array();
+        }
+        $userdata = get_userdata( $userid );
+        if($userdata){
+            error_log("userdata ".serialize($userdata));
+            if ( $userdata instanceof stdClass ) {
+                $userdata = get_object_vars( $userdata );
+            } elseif ( $userdata instanceof WP_User ) {
+                $userdata = $userdata->to_array();
+            }
+            $userdata = array_merge( $usermeta, $userdata) ;
+        } else {
+            $userdata = $usermeta;
+        }
+        return $userdata;
+    }
+
+    public function store_initial_userdata(){
+        global $user_id;
+        wp_reset_vars( array( 'user_id' ) );
+        if(isset($user_id)){
+            error_log("user id found:".serialize($user_id));
+            $this->initial_userdata = $this->get_userdata($user_id);
+        } else {
+            error_log("user id not found");
+        }
+    }
+
     // public function get_ingress_updates(){
     //     //TODO: 
     //     // SELECT * FROM 
@@ -164,9 +199,7 @@ class Tansync_Synchronization{
 
     public function handle_profile_update($userid, $old_userdata=null){
         error_log("USER PROFILE UPDATE".serialize($userid));
-
-
-        $this->queue_update($userid, $old_userdata);
+        $this->queue_update($userid);
     }
 
     public function handle_user_register($userid){
@@ -194,39 +227,26 @@ class Tansync_Synchronization{
         return $synced_fields;
     }
 
-    public function queue_update($userid, $userdata_old = null){
+    public function queue_update($userid){
         error_log("TRIGGER SYNC: ".serialize($userid));
-        if ( $userdata_old instanceof stdClass ) {
-            $userdata_old = get_object_vars( $userdata_old );
-        } elseif ( $userdata_old instanceof WP_User ) {
-            $userdata_old = $userdata_old->to_array();
-        }
-        $userdata_old += get_user_meta( $userid );
-        // error_log("old_userdata ".serialize($userdata_old));
-
         // checks for pending ingress updates
-        add_action("shutdown", function() use ($userid, $userdata_old){
-
-            $userdata = get_object_vars(get_userdata( $userid )) + get_user_meta( $userid );
-            // if(!$userdata){
-            //     $userdata = get_object_vars(get_userdata( $userid )) + get_user_meta( $userid );
-
-            // }
-
-
+        add_action("shutdown", function() use ($userid){
+            $userdata = $this->get_userdata($userid);
+            $userdata_old = $this->initial_userdata;
+            
             // filter only sync'd fields
             $syncdata = array();
             $changed = array();
             $syncfields = $this->get_synced_fields();
-            // error_log("userdata: ");
+            error_log("userdata: ");
             foreach ($syncfields as $key => $label) {
                 if (isset($userdata[$key])){
                     $syncdata[$label] = $userdata[$key];
-                    // error_log(" => $key|$label NEW: ".serialize($userdata[$key]));
+                    error_log(" => $key|$label NEW: ".serialize($userdata[$key]));
                     if(isset($userdata_old[$key])){
-                        // error_log(" => $key|$label OLD: ".serialize($userdata_old[$key]));
+                        error_log(" => $key|$label OLD: ".serialize($userdata_old[$key]));
                         if($userdata[$key] == $userdata_old[$key]){
-                            // error_log("value $key has not changed");
+                            error_log("value $key has not changed");
                             continue;
                         }
                     }
