@@ -154,13 +154,13 @@ class Tansync_Synchronization{
     public function get_userdata($userid){
         $usermeta = get_user_meta( $userid );
         if($usermeta){
-            error_log("usermeta ".serialize($usermeta));           
+            // error_log("usermeta ".serialize($usermeta));           
         } else {
             $usermeta = array();
         }
         $userdata = get_userdata( $userid );
         if($userdata){
-            error_log("userdata ".serialize($userdata));
+            // error_log("userdata ".serialize($userdata));
             if ( $userdata instanceof stdClass ) {
                 $userdata = get_object_vars( $userdata );
             } elseif ( $userdata instanceof WP_User ) {
@@ -177,10 +177,10 @@ class Tansync_Synchronization{
         global $user_id;
         wp_reset_vars( array( 'user_id' ) );
         if(isset($user_id)){
-            error_log("user id found:".serialize($user_id));
+            // error_log("user id found:".serialize($user_id));
             $this->initial_userdata = $this->get_userdata($user_id);
         } else {
-            error_log("user id not found");
+            // error_log("user id not found");
         }
     }
 
@@ -238,15 +238,15 @@ class Tansync_Synchronization{
             $syncdata = array();
             $changed = array();
             $syncfields = $this->get_synced_fields();
-            error_log("userdata: ");
+            // error_log("userdata: ");
             foreach ($syncfields as $key => $label) {
                 if (isset($userdata[$key])){
                     $syncdata[$label] = $userdata[$key];
-                    error_log(" => $key|$label NEW: ".serialize($userdata[$key]));
+                    // error_log(" => $key|$label NEW: ".serialize($userdata[$key]));
                     if(isset($userdata_old[$key])){
-                        error_log(" => $key|$label OLD: ".serialize($userdata_old[$key]));
+                        // error_log(" => $key|$label OLD: ".serialize($userdata_old[$key]));
                         if($userdata[$key] == $userdata_old[$key]){
-                            error_log("value $key has not changed");
+                            // error_log("value $key has not changed");
                             continue;
                         }
                     }
