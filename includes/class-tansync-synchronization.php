@@ -64,7 +64,7 @@ class Tansync_Synchronization{
         $this->parent = $parent;
         $this->settings = $parent->settings;
 
-        add_action( 'init', array(&$this, 'store_initial_userdata'));
+        add_action( 'init', array(&$this, 'store_initial_userdata'), 999);
         // do_action( 'profile_update', $userid, $old_userdata );
         add_action( 'profile_update', array(&$this, 'handle_profile_update'), 1, 2);
         // do_action( 'user_register', $userid );
@@ -160,7 +160,6 @@ class Tansync_Synchronization{
         }
         $userdata = get_userdata( $userid );
         if($userdata){
-            // error_log("userdata ".serialize($userdata));
             if ( $userdata instanceof stdClass ) {
                 $userdata = get_object_vars( $userdata );
             } elseif ( $userdata instanceof WP_User ) {
@@ -170,17 +169,19 @@ class Tansync_Synchronization{
         } else {
             $userdata = $usermeta;
         }
+        if(WP_DEBUG and TANSYNC_DEBUG) error_log("userdata ".serialize($userdata));
         return $userdata;
     }
 
     public function store_initial_userdata(){
         global $user_id;
-        wp_reset_vars( array( 'user_id' ) );
+        if(!isset($user_id)) wp_reset_vars( array( 'user_id' ) );
+        if(!$user_id) $user_id = get_current_user_id();
         if(isset($user_id)){
-            // error_log("user id found:".serialize($user_id));
+            if(WP_DEBUG and TANSYNC_DEBUG) error_log("user id found:".serialize($user_id));
             $this->initial_userdata = $this->get_userdata($user_id);
         } else {
-            // error_log("user id not found");
+            if(WP_DEBUG and TANSYNC_DEBUG) error_log("user id not found");
         }
     }
 
@@ -238,15 +239,15 @@ class Tansync_Synchronization{
             $syncdata = array();
             $changed = array();
             $syncfields = $this->get_synced_fields();
-            // error_log("userdata: ");
+            if(WP_DEBUG and TANSYNC_DEBUG) error_log("userdata: ");
             foreach ($syncfields as $key => $label) {
                 if (isset($userdata[$key])){
                     $syncdata[$label] = $userdata[$key];
-                    // error_log(" => $key|$label NEW: ".serialize($userdata[$key]));
+                    if(WP_DEBUG and TANSYNC_DEBUG) error_log(" => $key|$label NEW: ".serialize($userdata[$key]));
                     if(isset($userdata_old[$key])){
-                        // error_log(" => $key|$label OLD: ".serialize($userdata_old[$key]));
+                        if(WP_DEBUG and TANSYNC_DEBUG) error_log(" => $key|$label OLD: ".serialize($userdata_old[$key]));
                         if($userdata[$key] == $userdata_old[$key]){
-                            // error_log("value $key has not changed");
+                            if(WP_DEBUG and TANSYNC_DEBUG) error_log("value $key has not changed");
                             continue;
                         }
                     }
