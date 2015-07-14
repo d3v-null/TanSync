@@ -65,9 +65,9 @@ class Tansync_Synchronization{
         $this->settings = $parent->settings;
 
         add_action( 'init', array(&$this, 'store_initial_userdata'), 999);
-        // do_action( 'profile_update', $userid, $old_userdata );
+
         add_action( 'profile_update', array(&$this, 'handle_profile_update'), 1, 2);
-        // do_action( 'user_register', $userid );
+
         add_action( 'user_register', array(&$this, 'handle_user_register'), 1, 1 );
 
         add_action( 'plugins_loaded', array(&$this, 'update_report_email'), 1 );
@@ -169,19 +169,24 @@ class Tansync_Synchronization{
         } else {
             $userdata = $usermeta;
         }
-        if(WP_DEBUG and TANSYNC_DEBUG) error_log("userdata ".serialize($userdata));
+        // if(WP_DEBUG and TANSYNC_DEBUG) error_log("userdata ".serialize($userdata));
         return $userdata;
     }
 
+
     public function store_initial_userdata(){
         global $user_id;
-        if(!isset($user_id)) wp_reset_vars( array( 'user_id' ) );
-        if(!$user_id) $user_id = get_current_user_id();
-        if(isset($user_id)){
-            if(WP_DEBUG and TANSYNC_DEBUG) error_log("user id found:".serialize($user_id));
-            $this->initial_userdata = $this->get_userdata($user_id);
+        if(isset($user_id) and !$user_id){
+            $_user_id = $user_id;
+        } else {
+            $_user_id = get_current_user_id();
+        } 
+        if($_user_id){
+            if(WP_DEBUG and TANSYNC_DEBUG) error_log("user id found:".serialize($_user_id));
+            $this->initial_userdata = $this->get_userdata($_user_id);
         } else {
             if(WP_DEBUG and TANSYNC_DEBUG) error_log("user id not found");
+            $this->initial_userdata = array();
         }
     }
 
@@ -231,9 +236,15 @@ class Tansync_Synchronization{
     public function queue_update($userid){
         error_log("TRIGGER SYNC: ".serialize($userid));
         // checks for pending ingress updates
+        $this->modified_user = $userid;
+
         add_action("shutdown", function() use ($userid){
             $userdata = $this->get_userdata($userid);
-            $userdata_old = $this->initial_userdata;
+            if(isset($this->initial_userdata)){
+                $userdata_old = $this->initial_userdata;
+            } else {
+                $userdata_old = array();
+            }
             
             // filter only sync'd fields
             $syncdata = array();
