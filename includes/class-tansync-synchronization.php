@@ -64,7 +64,7 @@ class Tansync_Synchronization{
         $this->parent = $parent;
         $this->settings = $parent->settings;
 
-        add_action( 'init', array(&$this, 'store_initial_userdata'), 999);
+        add_action( 'admin_init', array(&$this, 'store_initial_userdata'), 999);
 
         add_action( 'profile_update', array(&$this, 'handle_profile_update'), 1, 2);
 
@@ -176,10 +176,21 @@ class Tansync_Synchronization{
 
     public function store_initial_userdata(){
         global $user_id;
-        if(isset($user_id) and !$user_id){
+        if(isset($user_id) and $user_id){
+            if(WP_DEBUG and TANSYNC_DEBUG) error_log("user_id set and true");
             $_user_id = $user_id;
         } else {
-            $_user_id = get_current_user_id();
+            if(WP_DEBUG and TANSYNC_DEBUG) error_log("user_id not set or false");
+            if(!function_exists('wp_reset_vars')){
+                if(WP_DEBUG and TANSYNC_DEBUG) error_log("wp_reset_vars DNE");
+            }
+            wp_reset_vars( array( 'user_id' ) );
+            if(isset($user_id) and $user_id){
+                if(WP_DEBUG and TANSYNC_DEBUG) error_log("user_id set and true");
+                $_user_id = $user_id;
+            } else {
+                $_user_id = get_current_user_id();
+            }
         } 
         if($_user_id){
             if(WP_DEBUG and TANSYNC_DEBUG) error_log("user id found:".serialize($_user_id));

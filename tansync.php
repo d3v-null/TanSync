@@ -19,7 +19,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define('TANSYNC_DEBUG', false);
+define('TANSYNC_DEBUG', true);
 define( 'TANSYNC_DOMAIN', 'tansync');
 
 // Load plugin class files
