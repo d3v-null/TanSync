@@ -5,13 +5,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /**
 * Deals with Groups and roles integration
 */
-class Tansync_Groups_Roles
+class Tansync_Groups_Roles_Members
 {
     public $parent = null;
 
     function __construct($parent)
     {
-        // error_log("calling Tansync_Groups_Roles -> __construct");
+        // error_log("calling Tansync_Groups_Roles_Members -> __construct");
         $this->parent = $parent;
 
         // add_action('plugins_loaded', array(&$this, 'test_refresh_user'));
@@ -177,14 +177,14 @@ class Tansync_Groups_Roles
     }
     
     /**
-     * Main Tansync_Groups_Roles Instance
+     * Main Tansync_Groups_Roles_Members Instance
      *
-     * Ensures only one instance of Tansync_Groups_Roles is loaded or can be loaded.
+     * Ensures only one instance of Tansync_Groups_Roles_Members is loaded or can be loaded.
      *
      * @since 1.0.0
      * @static
      * @see TanSync()
-     * @return Main Tansync_Groups_Roles instance
+     * @return Main Tansync_Groups_Roles_Members instance
      */
     public static function instance ( $parent ) {
         return new self( $parent );

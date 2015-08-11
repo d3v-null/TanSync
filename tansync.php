@@ -27,7 +27,7 @@ require_once( 'includes/class-tansync.php' );
 require_once( 'includes/class-tansync-settings.php' );
 require_once( 'includes/class-tansync-ui-extensions.php' );
 require_once( 'includes/class-tansync-synchronization.php' );
-require_once( 'includes/class-tansync-groups-roles.php' );
+require_once( 'includes/class-tansync-groups-roles-members.php' );
 
 // Load plugin libraries
 require_once( 'includes/lib/class-tansync-admin-api.php' );
@@ -57,7 +57,7 @@ function TanSync () {
     // if ( 1 or is_null( $instance->extra_fields ) ) {
     // }
 
-    $instance->groups_roles = Tansync_Groups_Roles::instance( $instance );
+    $instance->groups_roles = Tansync_Groups_Roles_Members::instance( $instance );
 
 	return $instance;
 }

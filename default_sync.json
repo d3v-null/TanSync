@@ -71,6 +71,7 @@
     },
     "billing_phone":{
         "sync_label":"Phone",
+        "contact_method":1,
         "sync_egress":1,
         "sync_ingress":1
     },

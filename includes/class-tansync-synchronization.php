@@ -181,10 +181,11 @@ class Tansync_Synchronization{
             $_user_id = $user_id;
         } else {
             if(WP_DEBUG and TANSYNC_DEBUG) error_log("user_id not set or false");
-            if(!function_exists('wp_reset_vars')){
+            if(function_exists('wp_reset_vars')){
+                wp_reset_vars( array( 'user_id' ) ); }
+            else {
                 if(WP_DEBUG and TANSYNC_DEBUG) error_log("wp_reset_vars DNE");
             }
-            wp_reset_vars( array( 'user_id' ) );
             if(isset($user_id) and $user_id){
                 if(WP_DEBUG and TANSYNC_DEBUG) error_log("user_id set and true");
                 $_user_id = $user_id;
