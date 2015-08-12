@@ -157,95 +157,94 @@ class Tansync_Groups_Roles_Members
         }
 
         if(TANSYNC_DEBUG) error_log("expected_memberships: ".serialize($expected_memberships));
-        if(class_exists("WC_Memberships") and class_exists("WC_Memberships_User_Memberships")){
-            $observed_memberships = wc_memberships()->user_memberships->get_user_memberships($userid);
+        if(class_exists("WC_Memberships")){
+            $observed_memberships = wc_memberships_get_user_memberships($userid);
             if(TANSYNC_DEBUG) error_log("observed_memberships: ".serialize($observed_memberships));
             if($observed_memberships) foreach ($observed_memberships as $membership) {
-                $plan = $membership->get_plan();
-                if(TANSYNC_DEBUG) error_log(" -> membership: ".$plan->get_slug());
-                if(in_array($plan, $expected_memberships)){
-                    error_log(" --> was expected");
-                    $expected_memberships = array_diff($expected_memberships, array($plan));
-
-                    //TODO ENSURE STATUS IS ACTIVE
-                } else {
-                    if(TANSYNC_DEBUG) error_log(" --> was not expected");
-                    if(TANSYNC_DEBUG) error_log(" ---> user_id: ".serialize($userid));
-                    if(TANSYNC_DEBUG) error_log(" ---> plan: ".serialize($plan));
-                    $result = $membership->cancel_membership( $note = __('Membership cancelled by TanSync', TANSYNC_DOMAIN) );
-                    if(TANSYNC_DEBUG) error_log(" ---> result: ".serialize($result));
-                    $membership->set_end_date(current_time( 'mysql', true ));
-                    wp_delete_post($membership->get_id(), true);
+                $membership_plan = $membership->get_plan();
+                $membership_plan_slug = $membership_plan->get_slug();
+                $membership_plan_name = $membership_plan->get_name();
+                if(TANSYNC_DEBUG) error_log(" -> membership: ".$membership_plan_name);
+                if(wc_memberships_is_user_active_member($userid, $membership_plan)){
+                    if(TANSYNC_DEBUG) error_log(" --> User is active member");
+                    if(in_array($membership_plan_slug, $expected_memberships)){
+                        error_log(" --> was expected");
+                        $expected_memberships = array_diff($expected_memberships, array($membership_plan_slug));
+                        //TODO ENSURE STATUS IS ACTIVE
+                    } else {
+                        if(TANSYNC_DEBUG) error_log(" --> was not expected");
+                        $result = $membership->cancel_membership( $note = __('Membership cancelled by TanSync', TANSYNC_DOMAIN) );
+                        $membership->set_end_date(current_time( 'mysql', true ));
+                        wp_delete_post($membership->get_id(), true);
+                    }
+                } else{
+                    if(TANSYNC_DEBUG) error_log(" --> User is not active member");
                 }
             }
             if(TANSYNC_DEBUG) error_log("remaining memberships:".serialize($expected_memberships));
-            $possible_membership_plans = wc_memberships()->plans->get_membership_plans();
-            $possible_plans = array();
-            foreach ($possible_membership_plans as $membership_plan) {
-                $plan_slug = $membership_plan->get_slug();
-                $plan_id = $membership_plan->get_id();
-                $possible_plans[$plan_slug] = $plan_id;
-            }
-            foreach ($expected_memberships as $plan_slug) {
-                if($plan_slug and in_array(strtolower($plan_slug), array_keys($possible_plans))){
-                    if(TANSYNC_DEBUG) error_log(" -> plan exists: ".$plan_slug);
-                    
-                    $plan_id = $possible_plans[strtolower($plan_slug)];
-                    if(TANSYNC_DEBUG) error_log(" -> plan_id: ".$plan_id);
-
-                    if ( wc_memberships_is_user_member( $userid, $plan_id ) ) {
-                        if ( $plan_id ) {
-                            $membership_plan = wc_memberships_get_membership_plan( $plan_id );
-                            $args = array(
-                                'author'      => $userid,
-                                'post_type'   => 'wc_user_membership',
-                                'post_parent' => $membership_plan->get_id(),
-                                'post_status' => 'any',
-                            );
-
-                            $user_memberships = get_posts( $args );
-                            $post             = ! empty( $user_memberships ) ? $user_memberships[0] : null;
-
-                            if(TANSYNC_DEBUG) error_log(" -> failed: already member: ".serialize($post));
+            // foreach ($possible_membership_plans as $membership_plan) {
+            //     $plan_slug = $membership_plan->get_slug();
+            //     $plan_id = $membership_plan->get_id();
+            //     $possible_plans[$plan_slug] = $plan_id;
+            // }
+            if($expected_memberships){
+                $master_role_string = implode("|", $master_roles);
+                $possible_membership_plans = wc_memberships_get_membership_plans();
+                $possible_plans = array();
+                foreach ($possible_membership_plans as $membership_plan) {
+                    $possible_plans[$membership_plan->get_slug()] = $membership_plan;
+                }
+                foreach ($expected_memberships as $plan_slug) {
+                    error_log("Plan: ".$plan_slug);
+                    if( wc_memberships_is_user_member($userid, $plan_slug)){
+                        if(TANSYNC_DEBUG) error_log(" -> user is a member ");
+                        if( wc_memberships_is_user_member($userid, $plan_slug) ){
+                            if(TANSYNC_DEBUG) error_log(" -> user is an active member ");
+                            continue;
+                        } else {
+                            if(TANSYNC_DEBUG) error_log(" -> user is not an active member ");
+                            $user_membership = wc_memberships_get_user_membership($userid, $plan_slug);
+                            $user_membership->activate_membership( __('Activated by TanSync because of master roles',TANSYNC_DOMAIN).' '.$master_role_string );
                         }
-                        continue;
                     } else {
-                        if(TANSYNC_DEBUG) error_log(" -> is not already member");
+                        if(TANSYNC_DEBUG) error_log(" -> user is not a member ");
+                        if(in_array($plan_slug, array_keys($possible_plans))){
+                            if(TANSYNC_DEBUG) error_log(" -> plan exists");
+                            $plan = $possible_plans[$plan_slug];
+                            $plan_id = $plan->get_id();
+
+                            $data = apply_filters( 'wc_memberships_groups_import_membership_data', array(
+                                'post_parent'    => $plan_id,
+                                'post_author'    => $userid,
+                                'post_type'      => 'wc_user_membership',
+                                'post_status'    => 'wcm-active',
+                                'comment_status' => 'open',
+                            ), array(
+                                'user_id'  => $userid,
+                                // 'group_id' => $group_id,
+                            ) );
+
+                            $user_membership_id = wp_insert_post( $data );
+
+                            if ( is_wp_error( $user_membership_id ) ) {
+                                if(TANSYNC_DEBUG) error_log(" -> failed: error making post");
+                                continue;
+                            } else {
+                                if(TANSYNC_DEBUG) error_log(" -> didn't fail making post");
+                            } 
+
+                            // update_post_meta( $user_membership_id, '_group_id', $group_id );
+                            update_post_meta( $user_membership_id, '_start_date', current_time( 'mysql', true ) );
+
+                            $end_date = '';
+
+                            $user_membership = wc_memberships_get_user_membership( $user_membership_id );
+                            $user_membership->set_end_date( $end_date );
+                            $user_membership->add_note( __( 'Membership created by TanSync because of master roles', TANSYNC_DOMAIN) . ' ' . $master_role_string );
+                        } else {
+                            if(TANSYNC_DEBUG) error_log(" -> plan does not exist");
+                        }
                     }
-
-                    $data = apply_filters( 'wc_memberships_groups_import_membership_data', array(
-                        'post_parent'    => $plan_id,
-                        'post_author'    => $userid,
-                        'post_type'      => 'wc_user_membership',
-                        'post_status'    => 'wcm-active',
-                        'comment_status' => 'open',
-                    ), array(
-                        'user_id'  => $userid,
-                        // 'group_id' => $group_id,
-                    ) );
-
-                    $user_membership_id = wp_insert_post( $data );
-
-                    if ( is_wp_error( $user_membership_id ) ) {
-                        if(TANSYNC_DEBUG) error_log(" -> failed: error making post");
-                        continue;
-                    } else {
-                        if(TANSYNC_DEBUG) error_log(" -> didn't fail making post");
-                    } 
-
-                    // update_post_meta( $user_membership_id, '_group_id', $group_id );
-                    update_post_meta( $user_membership_id, '_start_date', current_time( 'mysql', true ) );
-
-                    $plan     = wc_memberships_get_membership_plan( $plan_id );
-                    $end_date = '';
-
-                    $user_membership = wc_memberships_get_user_membership( $user_membership_id );
-                    $user_membership->set_end_date( $end_date );
-
-                    $user_membership->add_note( sprintf( __( 'Membership imported from master_roles "%s"' ), implode("|", $master_roles) ) );
-
-                } else {
-                    if(TANSYNC_DEBUG) error_log(" -> plan doesn't exist: ".$plan_slug);
                 }
             }
         }
@@ -284,7 +283,7 @@ class Tansync_Groups_Roles_Members
      *
      * @since 1.0.0
      * @static
-     * @see TanSync()
+     * @see TanSync because of master role( );
      * @return Main Tansync_Groups_Roles_Members instance
      */
     public static function instance ( $parent ) {

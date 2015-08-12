@@ -329,42 +329,42 @@ class TanSync_Settings {
 	"WN":{
 		"roles":["wn"],
 		"groups":["Registered", "Wholesale", "Local"],
-		"memberships":["Wholesale"]
+		"memberships":["wholesale"]
 	},
 	"XWN":{
 		"roles":["xwn"],
 		"groups":["Registered", "Wholesale", "Export"],
-		"memberships":["Wholesale"]
+		"memberships":["wholesale"]
 	},
 	"WP":{
 		"roles":["wp"],
 		"groups":["Registered", "Wholesale", "Local", "Preferred"],
-		"memberships":["Wholesale"]
+		"memberships":["wholesale"]
 	},
 	"XWP":{
 		"roles":["xwp"],
 		"groups":["Registered", "Wholesale", "Export", "Preferred"],
-		"memberships":["Wholesale"]
+		"memberships":["wholesale"]
 	},
 	"DN":{
 		"roles":["dn"],
 		"groups":["Registered","Distributor", "Local"],
-		"memberships":["Distributor"]
+		"memberships":["distributor"]
 	},
 	"XDN":{
 		"roles":["xdn"],
 		"groups":["Registered","Distributor", "Export"],
-		"memberships":["Distributor"]
+		"memberships":["distributor"]
 	},
 	"DP":{
 		"roles":["dp"],
 		"groups":["Registered","Distributor", "Local", "Preferred"],
-		"memberships":["Distributor"]
+		"memberships":["distributor"]
 	},
 	"XDP":{
 		"roles":["xdp"],
 		"groups":["Registered","Distributor", "Export", "Preferred"],
-		"memberships":["Distributor"]
+		"memberships":["distributor"]
 	}
 }',
 				),
