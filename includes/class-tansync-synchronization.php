@@ -262,15 +262,15 @@ class Tansync_Synchronization{
             $syncdata = array();
             $changed = array();
             $syncfields = $this->get_synced_fields();
-            if(WP_DEBUG and TANSYNC_DEBUG) error_log("userdata: ");
+            // if(WP_DEBUG and TANSYNC_DEBUG) error_log("userdata: ");
             foreach ($syncfields as $key => $label) {
                 if (isset($userdata[$key])){
                     $syncdata[$label] = $userdata[$key];
-                    if(WP_DEBUG and TANSYNC_DEBUG) error_log(" => $key|$label NEW: ".serialize($userdata[$key]));
+                    // if(WP_DEBUG and TANSYNC_DEBUG) error_log(" => $key|$label NEW: ".serialize($userdata[$key]));
                     if(isset($userdata_old[$key])){
-                        if(WP_DEBUG and TANSYNC_DEBUG) error_log(" => $key|$label OLD: ".serialize($userdata_old[$key]));
+                        // if(WP_DEBUG and TANSYNC_DEBUG) error_log(" => $key|$label OLD: ".serialize($userdata_old[$key]));
                         if($userdata[$key] == $userdata_old[$key]){
-                            if(WP_DEBUG and TANSYNC_DEBUG) error_log("value $key has not changed");
+                            // if(WP_DEBUG and TANSYNC_DEBUG) error_log("value $key has not changed");
                             continue;
                         }
                     }
