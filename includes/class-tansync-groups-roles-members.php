@@ -82,7 +82,12 @@ class Tansync_Groups_Roles_Members
         return "RN";
     }
 
-    public function get_user_master_role($userid){
+    public function get_user_master_role($user){
+        if(is_integer($user)){
+            $userid = $user;
+        } else if(is_object($user)) {
+            $userid = $user->ID;
+        }
         // error_log("getting user master role ".$userid);
         $master_field = $this->get_master_role_field();
         // error_log(" -> master field: ".$master_field);
@@ -286,16 +291,21 @@ class Tansync_Groups_Roles_Members
     public function add_master_field($fields){
         $master_role_field = $this->get_master_role_field();
         if($master_role_field){
-            $fields[] = $master_role_field;
+            if(!in_array($master_role_field, $fields)){
+                $fields[] = $master_role_field;
+            }
         }
         return $fields;
     }
     
     public function output_master_role_admin($user) {
+        error_log("outputting master_role_admin");
         if( is_admin()){
             error_log(" -> is_admin");
+            // error_log(" -> user:".serialize($user));
+
             $master_role_field = $this->get_master_role_field();
-            $master_role = $this->get_user_master_role($user->ID);
+            $master_role = $this->get_user_master_role($user);
             $output = '<h3>' . __( 'Master role',TANSYNC_DOMAIN ) . '</h3>';
             $output .= '<table class="form-table">';
             $output .= '<tbody>';
