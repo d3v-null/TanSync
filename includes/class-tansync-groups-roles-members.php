@@ -17,11 +17,14 @@ class Tansync_Groups_Roles_Members
         // add_action('plugins_loaded', array(&$this, 'test_refresh_user'));
         // add_action('plugins_loaded', array(&$this, 'maybe_role_refresh'));
 
+        add_action( 'profile_update', array(&$this, 'update_master_role'), 1, 1);
         add_action( 'profile_update', array(&$this, 'refresh_user'), 2, 1);
         add_action( 'edit_user_profile', array( &$this, 'edit_user_profile' ) );
         add_action( 'show_user_profile', array( &$this, 'show_user_profile' ) );
 
         add_filter( 'tansync_get_my_account_fields', array(&$this, 'add_master_field'));
+
+        $this->master_role_field = $this->get_master_role_field();
     }
 
     // public function test_refresh_user(){
@@ -309,13 +312,28 @@ class Tansync_Groups_Roles_Members
     }
 
     public function edit_user_profile ($user) {
-        error_log("calling edit_user_profile");
+        // error_log("calling edit_user_profile");
         $this->output_master_role_admin($user);
     }
 
     public function show_user_profile ($user) {
-        error_log("calling show_user_profile");
+        // error_log("calling show_user_profile");
         $this->output_master_role_admin($user);
+    }
+
+    public function update_master_role($user) {
+        error_log("calling update_master_role");
+        error_log(" -> master_role_field:".$this->master_role_field);
+        $post_filtered = filter_input_array( INPUT_POST );
+
+        if(isset($post_filtered[$this->master_role_field])){
+            error_log("-> post is set ");
+            $master_role = $post_filtered[$this->master_role_field];
+            if(is_array($master_role)) $master_role = $master_role[0];
+            if(is_string($master_role)){
+                update_user_meta($user, $this->master_role_field, $master_role);
+            }
+        }
     }
 
     /**
