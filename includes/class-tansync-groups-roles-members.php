@@ -24,81 +24,68 @@ class Tansync_Groups_Roles_Members
 
         add_filter( 'tansync_get_my_account_fields', array(&$this, 'add_master_field'));
 
-        $this->master_role_field = $this->get_master_role_field();
+        $this->initialize();
     }
 
-    // public function test_refresh_user(){
-    //     $this->refresh_user(1);
-    // }
-
-    public function role_refresh(){
-        $users = get_users();
-        foreach ($users as $user) {
-            error_log("refreshing user ".serialize($user->ID));
-            $this->refresh_user($user->ID);
-        }
-        error_log("completed refresh");
-    }
-
-    // public function maybe_role_refresh(){
-    //     $settings = $this->parent->settings;
-    //     $refresh_roles = $settings->get_option('enable_role_refresh');
-    //     error_log("refreshing roles: ".serialize($refresh_roles));
-    //     if( $refresh_roles ){
-    //         $return = $settings->set_option('refresh_roles', '');
-    //         error_log("refresh_roles returned".serialize($return));
-    //         $this->role_refresh();
-    //     }
-    // }
-
-
-    public function get_group_role_mapping(){
+    private function initialize()
+    {
         $settings = $this->parent->settings;
+
+        //group role mapping
         $mapping_json = $settings->get_option('group_role_mapping');
         $mapping = json_decode($mapping_json, true);
         if($mapping){
-            return $mapping;
+            $this->mapping = $mapping;
         } else {
-            return array();
+            $this->mapping = array();
         }
-    }
 
-    public function get_master_role_field(){
-        $default = "act_role";
-        $settings = $this->parent->settings;
+        //master role field
         $role_field = $settings->get_option('role_field');
         if($role_field){
-            return $role_field;
+            $this->master_role_field = $role_field;
         } else {
-            return $default;
+            $this->master_role_field = 'act_role';
+        }        
+
+        //default_role
+        $default_role = $settings->get_option('default_role');
+        if($default_role){
+            $this->default_role = $default_role;
+        } else {
+            $this->default_role = 'RN';
         }
     }
 
-    public function get_default_role(){
-        //TODO: This
-        $default = "RN";
-        $settings = $this->parent->settings;
-        $default_role = $settings->get_option('default_role');
-        return "RN";
+
+    public function role_refresh(){
+        error_log("REFRESH: commencing");
+        // $users = get_users();
+        $user_query = new WP_User_Query( array( 'fields' => 'ID' ) );
+        error_log("REFRESH: user_get");
+        if(!empty($user_query->results)){
+            foreach ($user_query->results as $userid) {
+                error_log("REFRESH: -> user ".serialize($userid));
+                $this->refresh_user($userid);
+                echo "refreshed user: ".$userid;
+            }
+        }
+        error_log("REFRESH: complete");
     }
 
     public function get_user_master_role($user){
         if(is_integer($user)){
             $userid = $user;
+        } else if(is_string($user)){
+            $userid = intval($user);
         } else if(is_object($user)) {
             $userid = $user->ID;
         }
-        // error_log("getting user master role ".$userid);
-        $master_field = $this->get_master_role_field();
-        // error_log(" -> master field: ".$master_field);
-        $default_role = $this->get_default_role();
-        // error_log(" -> default role: ".$default_role);
-        $usermeta = get_user_meta($userid, $master_field, true);
-        // error_log(" -> user meta value: ".serialize($usermeta));
+        $usermeta = get_user_meta($userid, $this->master_role_field, true);
         if($usermeta){
             return $usermeta;
         } else {
-            return $default_role;
+            return $this->default_role;
         }
     }
 
@@ -109,13 +96,13 @@ class Tansync_Groups_Roles_Members
         if(TANSYNC_DEBUG) error_log("user: $userid");
         $master_roles = explode('|', $master_role);
         if(TANSYNC_DEBUG) error_log("master_roles: ".serialize($master_roles));
-        $mapping = $this->get_group_role_mapping();
+        $mapping = $this->mapping;
         $expected_roles = [];
         $expected_groups = [];
         $expected_memberships = [];
         foreach ($master_roles as $role) {
             if(isset($mapping[$role])){
-                $parameters = $mapping[$master_role];
+                $parameters = $mapping[$role];
                 if( isset($parameters['roles'])){
                     $expected_roles = array_merge($expected_roles, $parameters['roles']); 
                 }
@@ -289,11 +276,8 @@ class Tansync_Groups_Roles_Members
     }
 
     public function add_master_field($fields){
-        $master_role_field = $this->get_master_role_field();
-        if($master_role_field){
-            if(!in_array($master_role_field, $fields)){
-                $fields[] = $master_role_field;
-            }
+        if(!in_array($this->master_role_field, $fields)){
+            $fields[] = $this->master_role_field;
         }
         return $fields;
     }
@@ -304,7 +288,7 @@ class Tansync_Groups_Roles_Members
             error_log(" -> is_admin");
             // error_log(" -> user:".serialize($user));
 
-            $master_role_field = $this->get_master_role_field();
+            $master_role_field = $this->master_role_field;
             $master_role = $this->get_user_master_role($user);
             $output = '<h3>' . __( 'Master role',TANSYNC_DOMAIN ) . '</h3>';
             $output .= '<table class="form-table">';

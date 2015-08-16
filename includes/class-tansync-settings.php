@@ -112,9 +112,11 @@ class TanSync_Settings {
 	}
 
 	public function refresh_roles( $check ){
+		error_log("checking refresh_roles: ".serialize($check));
 		if($check){
 			$groups_roles = $this->parent->groups_roles;
-			$groups_roles->role_refresh();
+			add_action('shutdown', array(&$groups_roles, 'role_refresh'));
+			// $groups_roles->role_refresh();
 			return false;
 		} 
 	}
