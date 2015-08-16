@@ -144,12 +144,16 @@ class Tansync_UI_Extensions
 	}
 
 	public function get_my_account_fields(){
-		return array(
+		$fields = array(
 			'first_name',
 			'last_name',
 			'display_name',
 			'email',
 		);
+
+		apply_filters( 'tansync_get_my_account_fields', $fields	);
+
+		return $fields;
 	}
 
 	private function get_current_user_roles(){

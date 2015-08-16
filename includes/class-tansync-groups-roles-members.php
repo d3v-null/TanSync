@@ -18,6 +18,10 @@ class Tansync_Groups_Roles_Members
         // add_action('plugins_loaded', array(&$this, 'maybe_role_refresh'));
 
         add_action( 'profile_update', array(&$this, 'refresh_user'), 2, 1);
+        add_action( 'edit_user_profile', array( &$this, 'edit_user_profile' ) );
+        add_action( 'show_user_profile', array( &$this, 'show_user_profile' ) );
+
+        add_filter( 'tansync_get_my_account_fields', array(&$this, 'add_master_field'));
     }
 
     // public function test_refresh_user(){
@@ -76,13 +80,13 @@ class Tansync_Groups_Roles_Members
     }
 
     public function get_user_master_role($userid){
-        error_log("getting user master role ".$userid);
+        // error_log("getting user master role ".$userid);
         $master_field = $this->get_master_role_field();
-        error_log(" -> master field: ".$master_field);
+        // error_log(" -> master field: ".$master_field);
         $default_role = $this->get_default_role();
-        error_log(" -> default role: ".$default_role);
+        // error_log(" -> default role: ".$default_role);
         $usermeta = get_user_meta($userid, $master_field, true);
-        error_log(" -> user meta value: ".serialize($usermeta));
+        // error_log(" -> user meta value: ".serialize($usermeta));
         if($usermeta){
             return $usermeta;
         } else {
@@ -275,7 +279,45 @@ class Tansync_Groups_Roles_Members
             }
         }
     }
+
+    public function add_master_field($fields){
+        $master_role_field = $this->get_master_role_field();
+        if($master_role_field){
+            $fields[] = $master_role_field;
+        }
+        return $fields;
+    }
     
+    public function output_master_role_admin($user) {
+        if( is_admin()){
+            error_log(" -> is_admin");
+            $master_role_field = $this->get_master_role_field();
+            $master_role = $this->get_user_master_role($user->ID);
+            $output = '<h3>' . __( 'Master role',TANSYNC_DOMAIN ) . '</h3>';
+            $output .= '<table class="form-table">';
+            $output .= '<tbody>';
+            $output .= '<tr class="'.$master_role_field.'-wrap">';
+            $output .= '<th><label for="'.$master_role_field.'">'.__('Master Role', TANSYNC_DOMAIN).' </label></th>';
+            $output .= '<td><input type="text" name="'.$master_role_field.'" id="'.$master_role_field.'" value="'.$master_role.'" class="regular-text ltr"></td>';
+            $output .= '</tr>';
+            $output .= '</tbody>';
+            $output .= '<table>';
+            echo $output;
+        } else {
+            error_log(" -> not is_admin");
+        }        
+    }
+
+    public function edit_user_profile ($user) {
+        error_log("calling edit_user_profile");
+        $this->output_master_role_admin($user);
+    }
+
+    public function show_user_profile ($user) {
+        error_log("calling show_user_profile");
+        $this->output_master_role_admin($user);
+    }
+
     /**
      * Main Tansync_Groups_Roles_Members Instance
      *
