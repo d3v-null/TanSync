@@ -289,7 +289,7 @@ class TanSync {
 	 * @return  void
 	 */
 	public function activate () {
-		error_log("calling Tansync -> activate");
+		if(TANSYNC_DEBUG) error_log("calling Tansync -> activate");
 		$_version = get_option($this->_token . '_version');
 		if( !$_version ){
 			$this->install ();
@@ -309,18 +309,18 @@ class TanSync {
 	 * @return  void
 	 */
 	public function install(){
-		error_log("calling Tansync -> install");
+		if(TANSYNC_DEBUG) error_log("calling Tansync -> install");
 		$this->synchronization->install_tables();
 		// $this->synchronization->schedule_email_cron();
 	}
 
 	public function upgrade( $old_version ){
-		error_log("calling Tansync -> upgrade");
+		if(TANSYNC_DEBUG) error_log("calling Tansync -> upgrade");
 		//	this in future versions
 	}
 
 	public function validate_install(){
-		error_log("calling Tansync -> validate_install");
+		if(TANSYNC_DEBUG) error_log("calling Tansync -> validate_install");
 		$this->synchronization->validate_install();
 	}
 

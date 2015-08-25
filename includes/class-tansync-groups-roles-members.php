@@ -59,18 +59,25 @@ class Tansync_Groups_Roles_Members
 
 
     public function role_refresh(){
-        error_log("REFRESH: commencing");
+        if(TANSYNC_DEBUG) error_log("REFRESH: commencing");
         // $users = get_users();
-        $user_query = new WP_User_Query( array( 'fields' => 'ID' ) );
-        error_log("REFRESH: user_get");
-        if(!empty($user_query->results)){
+        $n = 100;
+        $o = 0;
+        $user_query = new WP_User_Query( array( 'fields' => 'ID', 'number' => $n ) );
+
+        while (!empty($user_query->results)) {
+            if(TANSYNC_DEBUG) error_log("REFRESH: user_get ".$o);
+
             foreach ($user_query->results as $userid) {
-                error_log("REFRESH: -> user ".serialize($userid));
+                if(TANSYNC_DEBUG) error_log("REFRESH: -> user ".serialize($userid));
                 $this->refresh_user($userid);
-                echo "refreshed user: ".$userid;
-            }
+            }            
+
+            $o += $n;
+            $user_query = new WP_User_Query( array( 'fields' => 'ID', 'number' => $n, 'offset' => $o ) );
         }
-        error_log("REFRESH: complete");
+        
+        if(TANSYNC_DEBUG) error_log("REFRESH: complete");
     }
 
     public function get_user_master_role($user){
@@ -167,7 +174,7 @@ class Tansync_Groups_Roles_Members
                 if(wc_memberships_is_user_active_member($userid, $membership_plan)){
                     if(TANSYNC_DEBUG) error_log(" --> User is active member");
                     if(in_array($membership_plan_slug, $expected_memberships)){
-                        error_log(" --> was expected");
+                        if(TANSYNC_DEBUG) error_log(" --> was expected");
                         $expected_memberships = array_diff($expected_memberships, array($membership_plan_slug));
                         //TODO ENSURE STATUS IS ACTIVE
                     } else {
@@ -194,7 +201,7 @@ class Tansync_Groups_Roles_Members
                     $possible_plans[$membership_plan->get_slug()] = $membership_plan;
                 }
                 foreach ($expected_memberships as $plan_slug) {
-                    error_log("Plan: ".$plan_slug);
+                    if(TANSYNC_DEBUG) error_log("Plan: ".$plan_slug);
                     if( wc_memberships_is_user_member($userid, $plan_slug)){
                         if(TANSYNC_DEBUG) error_log(" -> user is a member ");
                         if( wc_memberships_is_user_member($userid, $plan_slug) ){
@@ -283,9 +290,9 @@ class Tansync_Groups_Roles_Members
     }
     
     public function output_master_role_admin($user) {
-        error_log("outputting master_role_admin");
+        if(TANSYNC_DEBUG) error_log("output master role admin");
         if( is_admin()){
-            error_log(" -> is_admin");
+            if(TANSYNC_DEBUG) error_log(" -> is_admin");
             // error_log(" -> user:".serialize($user));
 
             $master_role_field = $this->master_role_field;
@@ -301,7 +308,7 @@ class Tansync_Groups_Roles_Members
             $output .= '<table>';
             echo $output;
         } else {
-            error_log(" -> not is_admin");
+            if(TANSYNC_DEBUG) error_log(" -> not is_admin");
         }        
     }
 
@@ -316,12 +323,12 @@ class Tansync_Groups_Roles_Members
     }
 
     public function update_master_role($user) {
-        error_log("calling update_master_role");
-        error_log(" -> master_role_field:".$this->master_role_field);
+        if(TANSYNC_DEBUG) error_log("calling update_master_role");
+        if(TANSYNC_DEBUG) error_log(" -> master_role_field:".$this->master_role_field);
         $post_filtered = filter_input_array( INPUT_POST );
 
         if(isset($post_filtered[$this->master_role_field])){
-            error_log("-> post is set ");
+            if(TANSYNC_DEBUG) error_log("-> post is set ");
             $master_role = $post_filtered[$this->master_role_field];
             if(is_array($master_role)) $master_role = $master_role[0];
             if(is_string($master_role)){

@@ -112,7 +112,7 @@ class TanSync_Settings {
 	}
 
 	public function refresh_roles( $check ){
-		error_log("checking refresh_roles: ".serialize($check));
+		if(TANSYNC_DEBUG) error_log("checking refresh_roles: ".serialize($check));
 		if($check){
 			$groups_roles = $this->parent->groups_roles;
 			add_action('shutdown', array(&$groups_roles, 'role_refresh'));
@@ -252,7 +252,8 @@ class TanSync_Settings {
 					'label'			=> 'Synchronization Email Interval',
 					'description'	=> __( 'Enter the Interval (in seconds) that the plugin checks for updated users', TANSYNC_DOMAIN),
 					'type'			=> 'number',
-					'default'		=> 300
+					'default'		=> 300,
+					'placeholder'	=> 300
 				),
 				array(
 					'id'			=> 'sync_email_to',

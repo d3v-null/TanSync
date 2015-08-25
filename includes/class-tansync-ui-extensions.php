@@ -218,7 +218,7 @@ class Tansync_UI_Extensions
 
 	private function evaluate_condition($type, $parameters){
 		//TODO: actually evaluate conditions
-		// if(WP_DEBUG and TANSYNC_DEBUG) error_log("--> evaluating condition: $type | ".serialize($parameters) );
+		// if(TANSYNC_DEBUG) error_log("--> evaluating condition: $type | ".serialize($parameters) );
 		switch ($type) {
 			case 'allowed_roles':
 				if($parameters){
@@ -229,13 +229,13 @@ class Tansync_UI_Extensions
 					}
 					assert(is_array($allowed_roles));
 					$current_roles = $this->get_current_user_roles();
-					// if(WP_DEBUG and TANSYNC_DEBUG) error_log("---> current roles: ".serialize($current_roles));
+					// if(TANSYNC_DEBUG) error_log("---> current roles: ".serialize($current_roles));
 					$intersect = array_intersect($current_roles, $allowed_roles);
 					if(sizeof($intersect) == 0){
-						// if(WP_DEBUG and TANSYNC_DEBUG) error_log("---> condition failed");
+						// if(TANSYNC_DEBUG) error_log("---> condition failed");
 						return false;
 					} else {
-						// if(WP_DEBUG and TANSYNC_DEBUG) error_log("---> condition passed");
+						// if(TANSYNC_DEBUG) error_log("---> condition passed");
 						return true;
 					}
 				}
@@ -244,22 +244,22 @@ class Tansync_UI_Extensions
 				# code...
 				break;
 		}
-		// if(WP_DEBUG and TANSYNC_DEBUG) error_log("---> condition passed by default");
+		// if(TANSYNC_DEBUG) error_log("---> condition passed by default");
 		return true;
 	}
 
 	private function process_targeted_content_conditions($specs){
-		// if(WP_DEBUG and TANSYNC_DEBUG) error_log("\nProcessing Targeted Content Conditions | specs: ".serialize($specs));
+		// if(TANSYNC_DEBUG) error_log("\nProcessing Targeted Content Conditions | specs: ".serialize($specs));
 		// assert($specs and is_array($specs));
 		$slugs = array();
 		foreach ($specs as $spec) {
 			$slug = isset($spec->slug)?$spec->slug:"";
-			// if(WP_DEBUG and TANSYNC_DEBUG) error_log("-> processing slug: $slug");
+			// if(TANSYNC_DEBUG) error_log("-> processing slug: $slug");
 			if(!$slug){
-				// if(WP_DEBUG and TANSYNC_DEBUG) error_log("--> invalid slug: $slug");
+				// if(TANSYNC_DEBUG) error_log("--> invalid slug: $slug");
 			} 
 			if( in_array($slug, array_keys($slugs))) {
-				// if(WP_DEBUG and TANSYNC_DEBUG) error_log("--> already validated slug: $slug");
+				// if(TANSYNC_DEBUG) error_log("--> already validated slug: $slug");
 			}
 			$conditions = isset($spec->conditions)?$spec->conditions:array();
 
@@ -272,12 +272,12 @@ class Tansync_UI_Extensions
 				}
 			}
 			if(!$passed) {
-				// if(WP_DEBUG and TANSYNC_DEBUG) error_log("--> skipping $slug");
+				// if(TANSYNC_DEBUG) error_log("--> skipping $slug");
 				continue;
 			}
 
 			$label = isset($spec->label)?$spec->label:$slug;
-			// if(WP_DEBUG and TANSYNC_DEBUG) error_log("--> adding slug: $slug");
+			// if(TANSYNC_DEBUG) error_log("--> adding slug: $slug");
 			$slugs[$slug] = $label;
 		}
 		return $slugs;
@@ -346,12 +346,12 @@ class Tansync_UI_Extensions
 		add_action(
 			'woocommerce_save_account_details',
 			function($user_id) use ($extra_fields){
-				// if(WP_DEBUG and TANSYNC_DEBUG) error_log("in woocommerce_save_account_details closure | user_id: $user_id");
+				// if(TANSYNC_DEBUG) error_log("in woocommerce_save_account_details closure | user_id: $user_id");
 				$current_user = get_user_by( 'id', $user_id);
 				foreach($extra_fields as $slug => $params){
 					$default = isset($params->default)?$params->default:'';
 					$value = (isset($_POST[$slug]) and !empty($_POST[$slug]))?wc_clean($_POST[$slug]):$default;
-					if(WP_DEBUG and TANSYNC_DEBUG) {
+					if(TANSYNC_DEBUG) {
 						// error_log(" -> slug:$slug ");
 						// error_log(" -> default:$default");
 						// error_log(" -> value:$value");
@@ -366,7 +366,7 @@ class Tansync_UI_Extensions
 	}
 
 	public function sync_user($userid){
-		error_log("called sync_user ".serialize($userid));
+		if(TANSYNC_DEBUG) error_log("called sync_user ".serialize($userid));
 		$synchronization = $this->parent->synchronization;
 		$synchronization->queue_update($user_id);
 	}
