@@ -378,6 +378,23 @@ class Tansync_Synchronization{
     //     return $schedules;
     // }
 
+    public function json2html($json){
+        $html = '';
+        $html .= '<table>';
+        $assoc = json_decode($json, true);
+        foreach ($assoc as $key => $value) {
+            if(is_array($value) and sizeof($value) == 1){
+                $value = $value[0];
+            }
+            if($value){
+                if(!is_string($value)) $value = serialize($value);
+                $html .= '<tr><th>'.$key.'</th><td>'.$value.'</td></tr>';
+            }
+        }
+        $html .= '</table>';
+        return $html;
+    }
+
     public function update_report_email(){
         $_prodecure = "TANSYNC_SYNCHRONIZATION_EMAIL: ";
         if(TANSYNC_DEBUG) error_log($_prodecure."start");
@@ -422,7 +439,7 @@ class Tansync_Synchronization{
                 if($email_recipient){
                     $email_message = "UPDATES: \n";
                     $email_message .= "<table>";
-                    $email_message .= "<tr><td>UserID</td><td>Changes</td><td>Data</td></tr>";
+                    $email_message .= "<tr><th>UserID</th><th>Changes</th><th>Data</th></tr>";
                     $no_updates = true;
                     foreach($updates as $update){
                         if(TANSYNC_DEBUG) error_log($_prodecure."analysing update ".serialize($update));
@@ -434,10 +451,41 @@ class Tansync_Synchronization{
                             if(TANSYNC_DEBUG) error_log($_prodecure."change detected");
                             $no_updates = false;
                         }
+
+                        $changed_html = '';
+                        $changed_html .= "<table>";
+                        $changed_json = json_decode($update['changed'], true);
+                        $changed_keys = array();
+                        foreach ($changed_json as $key => $value) {
+                            $changed_keys = array_merge($changed_keys, array($key));
+                            if(is_array($value) and sizeof($value) == 1){
+                                $value = $value[0];
+                            }
+                            if($value){
+                                if(!is_string($value)) $value = serialize($value);
+                                $changed_html .= '<tr><th>'.$key.'</th><td>'.$value.'</td></tr>';
+                            }
+                        }
+                        $changed_html .= "</table>";
+                        $data_html = '';
+                        $data_html .= '<table>';
+                        $data_json = json_decode($update['data'], true);
+                        foreach ($data_json as $key => $value) {
+                            if(in_array($key, $changed_keys)) continue;
+                            if(is_array($value) and sizeof($value) == 1){
+                                $value = $value[0];
+                            }
+                            if($value){
+                                if(!is_string($value)) $value = serialize($value);
+                                $data_html .= '<tr><th>'.$key.'</th><td>'.$value.'</td></tr>';
+                            }
+                        }
+                        $data_html .= '</table>';
+
                         $email_message .= "<tr>";
                         $email_message .= "<td>".$update['user_id']."</td>";
-                        $email_message .= "<td>".$update['changed']."</td>";
-                        $email_message .= "<td>".$update['data']."</td>";
+                        $email_message .= "<td>".$changed_html."</td>";
+                        $email_message .= "<td>".$data_html."</td>";
                         $email_message .= "</tr>";
                     }
 
