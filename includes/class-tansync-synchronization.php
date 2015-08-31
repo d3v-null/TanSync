@@ -8,11 +8,6 @@ define( 'TANSYNC_VIRGIN', 0);
 define( 'TANSYNC_PENDING', 1);
 define( 'TANSYNC_COMPLETE', 2);
 
-
-function tansync_set_html_content_type() {
-    return 'text/html';
-}
-
 /**
 * Deals with the extra fields
 */
@@ -430,14 +425,15 @@ class Tansync_Synchronization{
             if($updates and !empty($updates)){
                 if(TANSYNC_DEBUG) error_log($_prodecure."updates to report");
 
-                $email_recipient = $this->settings->get_option('sync_email_to');
+                $email_recipient = $this->settings->get_option('sync_email_to', true);
                 if($email_recipient){
                     if(TANSYNC_DEBUG) error_log($_prodecure."email_recipient set as ".serialize($email_recipient));
                 } else {
                     if(TANSYNC_DEBUG) error_log($_prodecure."email_recipient not set");
                 }
                 if($email_recipient){
-                    $email_message = "UPDATES: \n";
+                    $email_message = "<html>";
+                    $email_message .= "UPDATES: \n";
                     $email_message .= "<table>";
                     $email_message .= "<tr><th>UserID</th><th>Changes</th><th>Data</th></tr>";
                     $no_updates = true;
@@ -501,15 +497,18 @@ class Tansync_Synchronization{
                     // $email_message .= "</p>";
                     $email_message .= "</html>";
 
+                    $headers = array('Content-Type: text/html; charset=UTF-8');
+                    $subject = "tansync user updates";
+
                     if(TANSYNC_DEBUG) error_log($_prodecure."update report email firing: ");
                     if(TANSYNC_DEBUG) error_log($_prodecure." -> recipient: ". $email_recipient);
                     if(TANSYNC_DEBUG) error_log($_prodecure." -> message: ". $email_message);
+                    if(TANSYNC_DEBUG) error_log($_prodecure." -> subject: ". $subject);
+                    if(TANSYNC_DEBUG) error_log($_prodecure." -> headers: ". $headers);
 
-                    add_filter( 'wp_mail_content_type', 'tansync_set_html_content_type' );
+                    $mail_result = wp_mail( $email_recipient, $subject, $email_message, $headers);
 
-                    wp_mail( $email_recipient, "tansync user updates", $email_message);
-
-                    remove_filter( 'wp_mail_content_type', 'tansync_set_html_content_type' );
+                    if(TANSYNC_DEBUG) error_log($_prodecure." -> wp_mail returned: ". $mail_result);
 
                 }
                 $this->settings->set_option('update_report_last_run', $now);
