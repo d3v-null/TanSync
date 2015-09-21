@@ -1,0 +1,63 @@
+{
+    "ADMIN":{
+        "roles":["administrator"],
+        "groups":["Registered", "Wholesale", "Distributor", "Admin"],
+                "memberships":["wholesale", "distributor"]
+    },
+    "RN":{
+        "roles":["customer"],
+        "groups":["Registered", "Local"]
+    },
+    "XRN":{
+        "roles":["customer"],
+        "groups":["Registered", "Export"]
+    },
+    "RP":{
+        "roles":["customer"],
+        "groups":["Registered", "Local", "Preferred"]
+    },
+    "XRN":{
+        "roles":["customer"],
+        "groups":["Registered", "Export", "Preferred"]
+    },
+    "WN":{
+        "roles":["customer"],
+        "groups":["Registered", "Wholesale", "Local"],
+        "memberships":["wholesale"]
+    },
+    "XWN":{
+        "roles":["customer"],
+        "groups":["Registered", "Wholesale", "Export"],
+        "memberships":["wholesale"]
+    },
+    "WP":{
+        "roles":["customer"],
+        "groups":["Registered", "Wholesale", "Local", "Preferred"],
+        "memberships":["wholesale"]
+    },
+    "XWP":{
+        "roles":["customer"],
+        "groups":["Registered", "Wholesale", "Export", "Preferred"],
+        "memberships":["wholesale"]
+    },
+    "DN":{
+        "roles":["customer"],
+        "groups":["Registered","Distributor", "Local"],
+        "memberships":["wholesale", "distributor"]
+    },
+    "XDN":{
+        "roles":["customer"],
+        "groups":["Registered","Distributor", "Export"],
+        "memberships":["wholesale", "distributor"]
+    },
+    "DP":{
+        "roles":["customer"],
+        "groups":["Registered","Distributor", "Local", "Preferred"],
+        "memberships":["wholesale", "distributor"]
+    },
+    "XDP":{
+        "roles":["customer"],
+        "groups":["Registered","Distributor", "Export", "Preferred"],
+        "memberships":["wholesale", "distributor"]
+    }
+}

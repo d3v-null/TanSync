@@ -312,60 +312,61 @@ class TanSync_Settings {
 	"ADMIN":{
 		"roles":["administrator"],
 		"groups":["Registered", "Wholesale", "Distributor", "Admin"]
+		"memberships":["wholesale", "distributor"]
 	},
 	"RN":{
-		"roles":["rn"],
+		"roles":["customer","rn"],
 		"groups":["Registered", "Local"]
 	},
 	"XRN":{
-		"roles":["xrn"],
+		"roles":["customer","xrn"],
 		"groups":["Registered", "Export"]
 	},
 	"RP":{
-		"roles":["rp"],
+		"roles":["customer", "rp"],
 		"groups":["Registered", "Local", "Preferred"]
 	},
 	"XRN":{
-		"roles":["xrp"],
+		"roles":["customer", "xrp"],
 		"groups":["Registered", "Export", "Preferred"]
 	},
 	"WN":{
-		"roles":["wn"],
+		"roles":["customer", "wn"],
 		"groups":["Registered", "Wholesale", "Local"],
 		"memberships":["wholesale"]
 	},
 	"XWN":{
-		"roles":["xwn"],
+		"roles":["customer", "xwn"],
 		"groups":["Registered", "Wholesale", "Export"],
 		"memberships":["wholesale"]
 	},
 	"WP":{
-		"roles":["wp"],
+		"roles":["customer", "wp"],
 		"groups":["Registered", "Wholesale", "Local", "Preferred"],
 		"memberships":["wholesale"]
 	},
 	"XWP":{
-		"roles":["xwp"],
+		"roles":["customer", "xwp"],
 		"groups":["Registered", "Wholesale", "Export", "Preferred"],
 		"memberships":["wholesale"]
 	},
 	"DN":{
-		"roles":["dn"],
+		"roles":["customer", "dn"],
 		"groups":["Registered","Distributor", "Local"],
 		"memberships":["distributor"]
 	},
 	"XDN":{
-		"roles":["xdn"],
+		"roles":["customer", "xdn"],
 		"groups":["Registered","Distributor", "Export"],
 		"memberships":["distributor"]
 	},
 	"DP":{
-		"roles":["dp"],
+		"roles":["customer", "dp"],
 		"groups":["Registered","Distributor", "Local", "Preferred"],
 		"memberships":["distributor"]
 	},
 	"XDP":{
-		"roles":["xdp"],
+		"roles":["customer", "xdp"],
 		"groups":["Registered","Distributor", "Export", "Preferred"],
 		"memberships":["distributor"]
 	}

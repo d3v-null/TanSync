@@ -20,7 +20,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 if ( !defined('TANSYNC_DEBUG'))
-    define('TANSYNC_DEBUG', true);
+    define('TANSYNC_DEBUG', false);
 
 define( 'TANSYNC_DOMAIN', 'tansync');
 
