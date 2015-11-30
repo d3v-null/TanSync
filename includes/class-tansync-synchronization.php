@@ -501,10 +501,10 @@ class Tansync_Synchronization{
                     $subject = "tansync user updates";
 
                     if(TANSYNC_DEBUG) error_log($_prodecure."update report email firing: ");
-                    if(TANSYNC_DEBUG) error_log($_prodecure." -> recipient: ". $email_recipient);
-                    if(TANSYNC_DEBUG) error_log($_prodecure." -> message: ". $email_message);
-                    if(TANSYNC_DEBUG) error_log($_prodecure." -> subject: ". $subject);
-                    if(TANSYNC_DEBUG) error_log($_prodecure." -> headers: ". $headers);
+                    if(TANSYNC_DEBUG) error_log($_prodecure." -> recipient: ". serialize($email_recipient));
+                    if(TANSYNC_DEBUG) error_log($_prodecure." -> message: ". serialize($email_message));
+                    if(TANSYNC_DEBUG) error_log($_prodecure." -> subject: ". serialize($subject));
+                    if(TANSYNC_DEBUG) error_log($_prodecure." -> headers: ". serialize($headers));
 
                     $mail_result = wp_mail( $email_recipient, $subject, $email_message, $headers);
 

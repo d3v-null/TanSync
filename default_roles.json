@@ -2,7 +2,7 @@
     "ADMIN":{
         "roles":["administrator"],
         "groups":["Registered", "Wholesale", "Distributor", "Admin"],
-                "memberships":["wholesale", "distributor"]
+        "memberships":["wholesale", "distributor"]
     },
     "RN":{
         "roles":["customer"],
