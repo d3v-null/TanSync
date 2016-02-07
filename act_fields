@@ -1,67 +1,51 @@
-Company
-Contact
-Phone
-Mobile Phone
-E-mail
+ABN
+Added to mailing list
 Address 1
 Address 2
-City
-State
-Postcode
+Agent
+Birth Date
+book_spray_tan
+Book-a-Tan Expiry
 Business Type
+Canvasser
+Card or Brochure Collected
+City
+Client Feedback
+Client Feedback Responded
+Client Feedback Response Date
 Client Grade
+Colour
+Company
+Compressor Date Updated
+Compressor Type
+Compressor Warranty Expiry
+Contact
 Country
 Create Date
 Direct Brand
-MYOB Card ID
-Offer Tanning Parties
-Total Sales
-Offer Mobile Service
-ABN
-Record Manager
-Role
-Agent
+Direct Customer
 Edit Date
+Edited in Act
+Edited in Wordpress
+E-mail
+Event Name
+Fax
+First Demo
+First Name
+First Sale
+First Sale by
+First Trained
 Home Address 1
 Home Address 2
 Home City
 Home Country
-Home Postcode
-Home State
-Technotan Approved
-Web Site
-Trainer
-Salesperson
-First Name
-Surname
-Referred By
-Lead Source
-Access Level
-Added to mailing list
-Birth Date
-Book-a-Tan Expiry
-book_spray_tan
-Canvasser
-Card or Brochure Collected
-Client Feedback
-Client Feedback Responded
-Client Feedback Response Date
-Compressor Date Updated
-Compressor Type
-Compressor Warranty Expiry
-Direct Customer
-Event Name
-Fax
-First Demo
-First Sale
-First Sale by
-First Trained
 Home Phone
 Home Phone Preferred
 Home Phone Status
+Home Postcode
+Home State
 Hot Lead Date
 ID/Status
-Import Date
 interested free tan
 Interested in Attracting Customers
 Interested in Body Builder range
@@ -69,8 +53,6 @@ Interested in Committing to a Plan
 Interested in offering discount events
 Interested in Referral Rewards
 Interested number of tans per week
-Is Imported
-Contact Type
 Last Attempt
 Last Book-a-Tan Referral
 Last Canvasser Call
@@ -78,8 +60,8 @@ Last Canvasser Meeting
 Last Complaint
 Last Demo
 Last Drop-in
-Last E-mail
 Last Edited By
+Last E-mail
 Last Maintenance
 Last Meeting
 Last Promo
@@ -91,6 +73,7 @@ Last Sale By
 Last Trained
 Latitude
 Lead Method
+Lead Source
 Letter Date
 Longitude
 Mailer Code
@@ -104,9 +87,11 @@ Marketing - Staff Training
 Memo
 Message To Rep
 Middle Name
+Mobile Phone
 Mobile Phone Preferred
 Mobile Phone Status
 Mobile Service
+MYOB Card ID
 MYOB Customer Card ID
 MYOB Identifier - A
 MYOB Identifier - B
@@ -126,6 +111,8 @@ Name Suffix
 Num Complaints Resolved
 Num Complaints Unresolved
 Number of Technicians
+Offer Mobile Service
+Offer Tanning Parties
 Opening Hours
 OptOut
 Other Brand
@@ -137,8 +124,10 @@ Outstanding Total
 Paid last month
 Paid this month
 Personal E-mail
+Phone
 Phone Preferred
 Phone Status
+Postcode
 Potential Agent
 Potential Trainer
 Private
@@ -146,7 +135,12 @@ Professionalism
 Publication
 Purchased at Events
 Record Creator
+Record Manager
+Referred By
+Rep Call Cycle
 Rep Grading
+Rep Monthly Target
+Role
 Sales 1 Qtr Ago
 Sales 2 Qtrs Ago
 Sales 3 Qtrs Ago
@@ -157,6 +151,7 @@ Sales prev FY
 Sales prev month
 Sales this month
 Sales this quarter
+Salesperson
 Salutation
 Search Text
 Sent to Rep
@@ -171,20 +166,27 @@ Snapshot WhoIs
 Sponsor
 Spouse
 spray_tan
+State
 Supervisor E-mails
 Supply Source
+Surname
 Survey Name
 Survey Response
 Swiftpage Import Status
 Tanning Parties
 Tans per Week
+Technotan Approved
 Technotan Percent
 Testimonial
-Title
+Total Sales
+Trainer
 Vehicle ID
 Want Book-a-tan
 Want Group Buying
 Want Referral Rewards
+Web Password
+Web Site
+Wordpress Username
 Z_Address 3
 Z_Alternate Extension
 Z_Alternate Phone
