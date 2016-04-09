@@ -220,11 +220,10 @@ class Tansync_Synchronization{
     }
 
     public function get_synced_fields(){
-        $sync_settings_json = $this->settings->get_option("sync_field_settings");
-        $sync_settings = json_decode($sync_settings_json);
+        $sync_settings = $this->settings->get_sync_settings();
         $synced_fields = array();
         if($sync_settings){
-            foreach (get_object_vars($sync_settings) as $key => $value) {
+            foreach ($sync_settings as $key => $value) {
                 if( isset($value->sync_egress) and $value->sync_egress ){
                     $label = $key;
                     if(isset($value->label)) {$label = $value->label; }

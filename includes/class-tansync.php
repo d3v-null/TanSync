@@ -103,6 +103,14 @@ class TanSync {
 	public $groups_roles = null;
 
 	/**
+	 * Groups Roles object
+	 * @var 	object
+	 * @access  public
+	 * @since   1.0.0
+	 */
+	public $xmlrpc = null;
+
+	/**
 	 * Constructor function.
 	 * @access  public
 	 * @since   1.0.0

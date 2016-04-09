@@ -58,8 +58,9 @@ class Tansync_UI_Extensions
 // TWO WAYS TO EDIT USER FIELDS: MY_PROFILE AND CONTACT_METHODS
 
 	public function get_synced_fields(){
-		$field_string = $this->settings->get_option('sync_field_settings', true);
-		$fields = (array)json_decode($field_string);
+		// $field_string = $this->settings->get_sync_settings();
+		// $fields = (array)json_decode($field_string);
+		$fields = $this->settings->get_sync_settings();
 		// if(WP_DEBUG) error_log("fields: ".serialize($fields));
 		if($fields){
 			return $fields;

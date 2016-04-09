@@ -506,6 +506,40 @@ class TanSync_Settings {
 	}
 
 	/**
+	 * gets the specified option
+	 */
+	public function get_option( $option_slug, $default = null ) {
+		// if(WP_DEBUG) error_log("getting option $option_slug");
+		if ( is_string($this->base) and is_string($option_slug) ) {
+			return get_option( $this->base . $option_slug, $default );
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * sets the specified option
+	 */
+	public function set_option( $option_slug, $value ) {
+		// if(WP_DEBUG) error_log("getting option $option_slug");
+		if ( is_string($this->base) and is_string($option_slug) ) {
+			return update_option( $this->base . $option_slug, $value );
+		} else {
+			return null;
+		}
+	}
+
+	public function get_sync_settings(){
+		$sync_settings_json = $this->get_option("sync_field_settings", "");
+		$sync_settings = json_decode($sync_settings_json);
+		if($sync_settings){
+			return get_object_vars($sync_settings);
+		} else {
+			return array();
+		}
+	}
+
+	/**
 	 * Main TanSync_Settings Instance
 	 *
 	 * Ensures only one instance of TanSync_Settings is loaded or can be loaded.
@@ -521,30 +555,6 @@ class TanSync_Settings {
 		}
 		return self::$_instance;
 	} // End instance()
-
-	/**
-	 * gets the specified option
-	 */
-	public function get_option( $option_slug ) {
-		// if(WP_DEBUG) error_log("getting option $option_slug");
-		if ( is_string($this->base) and is_string($option_slug) ) {
-			return get_option( $this->base . $option_slug );
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * gets the specified option
-	 */
-	public function set_option( $option_slug, $value ) {
-		// if(WP_DEBUG) error_log("getting option $option_slug");
-		if ( is_string($this->base) and is_string($option_slug) ) {
-			return update_option( $this->base . $option_slug, $value );
-		} else {
-			return null;
-		}
-	}
 
 	/**
 	 * Cloning is forbidden.
