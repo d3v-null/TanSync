@@ -94,7 +94,13 @@ class TanSync {
 	 */
 	public $synchronization = null;
 
-
+	/**
+	 * Groups Roles object
+	 * @var 	object
+	 * @access  public
+	 * @since   1.0.0
+	 */
+	public $groups_roles = null;
 
 	/**
 	 * Constructor function.

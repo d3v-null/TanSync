@@ -13,13 +13,12 @@ define( 'TANSYNC_COMPLETE', 2);
 */
 class Tansync_Synchronization{
     
-    // *
-    //  * The single instance of Tansync_Synchronization.
-    //  * @var     object
-    //  * @access  private
-    //  * @since   1.0.0
-     
-    // private static $_instance = null;
+    /**
+     * The single instance of Tansync_Synchronization.
+     * @var     object
+     * @access  private
+     * @since   1.0.0*/
+    private static $_instance = null;
 
     /**
      * Parent class object
@@ -52,12 +51,12 @@ class Tansync_Synchronization{
         'unique key' => 'UNIQUE KEY id (id)'
     );
 
-    function __construct($parent)
+    function __construct()
     {
-        // if(TANSYNC_DEBUG) error_log("calling Tansync_Synchronization -> __construct");
+        if(TANSYNC_DEBUG) error_log("calling Tansync_Synchronization -> __construct");
 
-        $this->parent = $parent;
-        $this->settings = $parent->settings;
+        $this->parent = TanSync::instance();
+        $this->settings = $this->parent->settings;
 
         add_action( 'admin_init', array(&$this, 'store_initial_userdata'), 999);
 
@@ -579,12 +578,11 @@ class Tansync_Synchronization{
      * @see TanSync()
      * @return Main Tansync_Synchronization instance
      */
-    public static function instance ( $parent ) {
-        return new self( $parent );
-        // if ( is_null( self::$_instance ) ) {
-        //     self::$_instance = new self( $parent );
-        // }
-        // return self::$_instance;
+    public static function instance ( ) {
+        if ( is_null( self::$_instance ) ) {
+            self::$_instance = new self( );
+        }
+        return self::$_instance;
     } // End instance()
 
 }

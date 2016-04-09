@@ -8,6 +8,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class Tansync_UI_Extensions
 {
 	/**
+	 * The single instance of Tansync_UI_Extensions.
+	 * @var     object
+	 * @access  private
+	 * @since   1.0.0*/
+	private static $_instance = null;
+
+	/**
 	 * Parent class object
 	 * @var     object
 	 * @access  public
@@ -15,20 +22,12 @@ class Tansync_UI_Extensions
 	 */
 	public $parent = null;
 
-	// *
-	//  * The single instance of Tansync_UI_Extensions.
-	//  * @var     object
-	//  * @access  private
-	//  * @since   1.0.0
-	 
-	// private static $_instance = null;	
-
-	function __construct($parent)
+	function __construct()
 	{
 		// error_log("Tansync_UI_Extensions Constructor");
-		$this->parent = $parent;
-		$this->settings = $parent->settings;
-		$this->synchronization = $parent->synchronization;
+		$this->parent = TanSync::instance();
+		$this->settings = $this->parent->settings;
+		$this->synchronization = $this->parent->synchronization;
 		// User Contact Methods
 		add_action('admin_init', array($this, 'modify_user_edit_admin') );
 		// My Account 
@@ -49,12 +48,11 @@ class Tansync_UI_Extensions
 	 * @see TanSync()
 	 * @return Main Tansync_UI_Extensions instance
 	 */
-	public static function instance ( $parent ) {
-		return new self( $parent );
-		// if ( is_null( self::$_instance ) ) {
-		// 	self::$_instance = new self( $parent );
-		// }
-		// return self::$_instance;
+	public static function instance (  ) {
+		if ( is_null( self::$_instance ) ) {
+			self::$_instance = new self( );
+		}
+		return self::$_instance;
 	} // End instance()	
 
 // TWO WAYS TO EDIT USER FIELDS: MY_PROFILE AND CONTACT_METHODS

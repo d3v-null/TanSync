@@ -7,12 +7,25 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 */
 class Tansync_Groups_Roles_Members
 {
+    /**
+     * The single instance of Tansync_Groups_Roles_Members.
+     * @var     object
+     * @access  private
+     * @since   1.0.0*/
+    private static $_instance = null;
+
+    /**
+     * Parent class object
+     * @var     object
+     * @access  public
+     * @since   1.0.0
+     */    
     public $parent = null;
 
-    function __construct($parent)
+    function __construct()
     {
         // error_log("calling Tansync_Groups_Roles_Members -> __construct");
-        $this->parent = $parent;
+        $this->parent = TanSync::instance() ;
 
         // add_action('plugins_loaded', array(&$this, 'test_refresh_user'));
         // add_action('plugins_loaded', array(&$this, 'maybe_role_refresh'));
@@ -347,12 +360,11 @@ class Tansync_Groups_Roles_Members
      * @see TanSync because of master role( );
      * @return Main Tansync_Groups_Roles_Members instance
      */
-    public static function instance ( $parent ) {
-        return new self( $parent );
-        // if ( is_null( self::$_instance ) ) {
-        //     self::$_instance = new self( $parent );
-        // }
-        // return self::$_instance;
+    public static function instance ( ) {
+        if ( is_null( self::$_instance ) ) {
+            self::$_instance = new self( );
+        }
+        return self::$_instance;
     } // End instance()
 
 }

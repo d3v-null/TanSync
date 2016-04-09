@@ -48,18 +48,20 @@ function TanSync () {
     $instance = TanSync::instance( __FILE__, '1.0.0' );
 
 	if ( is_null( $instance->settings ) ) {
-		$instance->settings = TanSync_Settings::instance( $instance );
+		$instance->settings = TanSync_Settings::instance( );
 	}
 
-    $instance->synchronization = TanSync_Synchronization::instance( $instance );
-    // if ( 1 or is_null( $instance->synchronization ) ) {
-    // }
+    if ( is_null( $instance->synchronization ) ) {
+        $instance->synchronization = TanSync_Synchronization::instance( );
+    }
 
-    $instance->extra_fields = Tansync_UI_Extensions::instance( $instance );
-    // if ( 1 or is_null( $instance->extra_fields ) ) {
-    // }
+    if ( is_null( $instance->extra_fields ) ) {
+        $instance->extra_fields = Tansync_UI_Extensions::instance( );
+    }
 
-    $instance->groups_roles = Tansync_Groups_Roles_Members::instance( $instance );
+    if ( is_null( $instance->groups_roles ) ) {
+        $instance->groups_roles = Tansync_Groups_Roles_Members::instance( );
+    }
 
 	return $instance;
 }

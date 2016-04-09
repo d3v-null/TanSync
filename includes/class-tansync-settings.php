@@ -36,9 +36,8 @@ class TanSync_Settings {
 	 */
 	public $settings = array();
 
-	public function __construct ( $parent ) {
-		$this->parent = $parent;
-
+	public function __construct ( ) {
+		$this->parent = TanSync::instance();
 		$this->base = 'tsync_';
 
 		// Initialise settings
@@ -516,9 +515,9 @@ class TanSync_Settings {
 	 * @see TanSync()
 	 * @return Main TanSync_Settings instance
 	 */
-	public static function instance ( $parent ) {
+	public static function instance ( ) {
 		if ( is_null( self::$_instance ) ) {
-			self::$_instance = new self( $parent );
+			self::$_instance = new self( );
 		}
 		return self::$_instance;
 	} // End instance()
