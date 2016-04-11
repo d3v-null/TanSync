@@ -23,19 +23,25 @@ class Tansync_XMLRPC
     }
 
 
+    function get_user_strict($user_id){
+        $user = get_user_by("ID", $user_id);
+        if(!$user) throw new Exception("Error Processing Request: invalid user_id", 1);
+        return $user;
+    }
+
     // // helper method for xmlrpc to update user field
     function update_user_field($user_id, $key, $newVal, $oldVal = null){
         // check $user_id is valid
-        $user = get_user_by("ID", $user_id);
-        if(!$user) throw new Exception("Error Processing Request: invalid user_id", 1);
+        $user = $this->get_user_strict($user_id);
         if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_field | user:".serialize($user_id));
         if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_field | key:".serialize($key));
         if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_field | newVal:".serialize($newVal));
 
         // check key is in sync_field_settings
         $sync_field_settings = $this->settings->get_sync_settings();
+        errors = array();
         if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_field | sync_field_settings:".serialize($sync_field_settings));
-        if(isset($sync_field_settings[$key])){
+        if($key and isset($sync_field_settings[$key])){
             $key_settings = (array)$sync_field_settings[$key];
             // check if key can be used on ingress sync
             if(isset($key_settings['sync_ingress']) and $key_settings['sync_ingress']){
@@ -50,16 +56,46 @@ class Tansync_XMLRPC
                     }
                 }
             } else {
-                throw new Exception("Error Processing Request: field not ingress", 1);
+                errors[$key] = "Field not Ingress";
             }
         } else {
-            throw new Exception("Error Processing Request: invalid key", 1);
+            errors[$key] = "Invalid Key";
         }
+        return json_encode($errors);
     }
 
-    // function update_user_fields($user_id, $fields){
+    function update_user_fields($user_id, $fields_json){
+        $user = $this->get_user_strict($user_id);
+        if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_field | user:".serialize($user_id));
+        if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_field | fields_json:".serialize($fields_json));
+        $fields = json_decode($fields_json);
 
-    // }
+        $sync_field_settings = $this->settings->get_sync_settings();
+        $core_updates = array();
+        $meta_updates = array();
+        $errors = array();
+        if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_field | sync_field_settings:".serialize($sync_field_settings));
+        foreach ($fields as $field_params) {
+            $field_vars = get_object_vars($field_params);
+            if(isset($field_vars['key'])) ){
+                $key = $field_vars['key'];
+                if($key and isset($sync_field_settings[$field_vars['key']]){
+                    $key_settings = (array)$sync_field_settings[$field_vars['key']]);
+                    if(isset($key_settings['sync_ingress'] and $key_settings['sync_ingress'])){
+
+                    } else {
+                        errors[$key] = "Field not Ingress";
+                    }
+                } else {
+                    errors[$key] = "Invalid key";
+                }
+
+            } else {
+                errors[""] = "No key specified";
+            }
+        }
+
+    }
 
 // function mynamespace_getUserID( $args ) {
 //     global $wp_xmlrpc_server;
@@ -95,8 +131,8 @@ class Tansync_XMLRPC
         $old_val  = isset($args[6])?$args[6]:null;
 
         try {
-            $this->update_user_field($user_id, $user_key, $user_val, $old_val);
-            return "Success";
+            $return = $this->update_user_field($user_id, $user_key, $user_val, $old_val);
+            return "Success: ".serialize($return);
         } catch(Exception $e){
             return "Failed up update: ".serialize($e);
         }
@@ -120,16 +156,6 @@ class Tansync_XMLRPC
         $methods['tansync.test_xmlrpc'] = array($this, 'test_xmlrpc');
         return $methods;   
     }
-
-
-
-
-
-
-
-
-
-
 
     /**
      * Main TanSync_XMLRPC Instance
