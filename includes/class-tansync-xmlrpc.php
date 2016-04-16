@@ -39,7 +39,7 @@ class Tansync_XMLRPC
 
         // check key is in sync_field_settings
         $sync_field_settings = $this->settings->get_sync_settings();
-        errors = array();
+        $errors = array();
         if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_field | sync_field_settings:".serialize($sync_field_settings));
         if($key and isset($sync_field_settings[$key])){
             $key_settings = (array)$sync_field_settings[$key];
@@ -56,42 +56,47 @@ class Tansync_XMLRPC
                     }
                 }
             } else {
-                errors[$key] = "Field not Ingress";
+                $errors[$key] = "Field not Ingress";
             }
         } else {
-            errors[$key] = "Invalid Key";
+            $errors[$key] = "Invalid Key";
         }
         return json_encode($errors);
     }
 
     function update_user_fields($user_id, $fields){
         $user = $this->get_user_strict($user_id);
-        if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_fields | user:".serialize($user_id));
+        if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_fields | USERID:".serialize($user_id));
 
         $sync_field_settings = $this->settings->get_sync_settings();
         $core_updates = array();
         $meta_updates = array();
         $errors = array();
-        if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_fields | sync_field_settings:".serialize($sync_field_settings));
-        foreach ($fields as $field_params) {
-            $field_vars = get_object_vars($field_params);
-            if(isset($field_vars['key'])) ){
-                $key = $field_vars['key'];
-                if($key and isset($sync_field_settings[$field_vars['key']]){
-                    $key_settings = (array)$sync_field_settings[$field_vars['key']]);
-                    if(isset($key_settings['sync_ingress'] and $key_settings['sync_ingress'])){
-
+        if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_fields | SETTINGS:".serialize($sync_field_settings));
+        foreach ($fields as $key => $newVal) {
+            if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_fields | KEY: $key | newVal:".serialize($newVal) );
+            if(isset($sync_field_settings[$key])){
+                $key_settings = (array)$sync_field_settings[$key];
+                if(isset($key_settings['sync_ingress']) and $key_settings['sync_ingress']){
+                    if(isset($key_settings['core']) and $key_settings['core']){
+                        // wp_update_user( array($key => $newVal) );
+                        $core_updates[$key] = $newVal;
                     } else {
-                        errors[$key] = "Field not Ingress";
+                        update_user_meta( $user_id, $key, $newVal );
+                        $meta_updates[$key] = $newVal;
                     }
                 } else {
-                    errors[$key] = "Invalid key";
+                    $errors[$key] = "Field not Ingress";
                 }
-
             } else {
-                errors[""] = "No key specified";
+                $errors[$key] = "Invalid key";
             }
         }
+        if($core_updates){
+            if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_fields | CORE_UPDATES:".serialize($core_updates));
+            wp_update_user($core_updates);
+        }
+        return serialize($errors);
 
     }
 
