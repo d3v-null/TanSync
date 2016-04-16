@@ -64,17 +64,15 @@ class Tansync_XMLRPC
         return json_encode($errors);
     }
 
-    function update_user_fields($user_id, $fields_json){
+    function update_user_fields($user_id, $fields){
         $user = $this->get_user_strict($user_id);
-        if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_field | user:".serialize($user_id));
-        if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_field | fields_json:".serialize($fields_json));
-        $fields = json_decode($fields_json);
+        if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_fields | user:".serialize($user_id));
 
         $sync_field_settings = $this->settings->get_sync_settings();
         $core_updates = array();
         $meta_updates = array();
         $errors = array();
-        if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_field | sync_field_settings:".serialize($sync_field_settings));
+        if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_fields | sync_field_settings:".serialize($sync_field_settings));
         foreach ($fields as $field_params) {
             $field_vars = get_object_vars($field_params);
             if(isset($field_vars['key'])) ){
@@ -151,9 +149,39 @@ class Tansync_XMLRPC
         // return $user->ID;            
     }
 
+    function xmlrpc_update_user_fields($args){
+        if(TANSYNC_DEBUG) error_log("calling Tansync_XMLRPC -> xmlrpc_update_user_fields");
+        global $wp_xmlrpc_server;
+        $wp_xmlrpc_server->escape( $args );
+        $blog_id  = $args[0];
+        $username = $args[1];
+        $password = $args[2];
+
+        if ( ! $user = $wp_xmlrpc_server->login( $username, $password ) )
+            return $wp_xmlrpc_server->error;
+
+        $user_id  = isset($args[3])?$args[3]:null;
+        if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->xmlrpc_update_user_fields | user:".serialize($user_id));
+        $fields_json_base64 = isset($args[4])?$args[4]:null;
+        if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->xmlrpc_update_user_fields | fields_json_base64:".serialize($fields_json_base64));
+        if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->xmlrpc_update_user_fields | fields_json:".serialize(base64_decode($fields_json_base64)));
+        $fields = json_decode(base64_decode($fields_json_base64));
+
+        try {
+            $return = $this->update_user_fields($user_id, $fields);
+            return "Success: ".serialize($return);
+        } catch(Exception $e){
+            return "Failed up update: ".serialize($e);
+        }
+
+
+
+    }
+
     function new_xmlrpc_methods( $methods ) {
         if(TANSYNC_DEBUG) error_log("calling Tansync_XMLRPC -> new_xmlrpc_methods");
         $methods['tansync.test_xmlrpc'] = array($this, 'test_xmlrpc');
+        $methods['tansync.update_user_fields'] = array($this, 'xmlrpc_update_user_fields');
         return $methods;   
     }
 
