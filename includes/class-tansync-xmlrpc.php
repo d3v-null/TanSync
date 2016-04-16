@@ -47,7 +47,7 @@ class Tansync_XMLRPC
             if(isset($key_settings['sync_ingress']) and $key_settings['sync_ingress']){
                 // update user core or user meta depending on sync_field_settings
                 if(isset($key_settings['core']) and $key_settings['core']){
-                    wp_update_user( array($key => $newVal) );
+                    wp_update_user( array('id' => $user_id, $key => $newVal) );
                 } else {
                     if($oldVal){
                         update_user_meta( $user_id, $key, $newVal, $oldVal );
@@ -93,8 +93,13 @@ class Tansync_XMLRPC
             }
         }
         if($core_updates){
+            $core_updates['ID'] = $user_id;
             if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_fields | CORE_UPDATES:".serialize($core_updates));
-            wp_update_user($core_updates);
+            $return = wp_update_user($core_updates);
+            if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_fields | CORE_RETURN:".serialize($return));
+            if($return != $user_id){
+                $errors['core'] = $return;
+            }
         }
         return serialize($errors);
 

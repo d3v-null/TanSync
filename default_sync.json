@@ -211,16 +211,16 @@
         "profile_display": 1,
         "profile_modify": 1,
         "contact_method": 1
+    },
+    "user_login": {
+        "sync_egress":1,
+        "sync_label":"Wordpress Username"
     }
 }
 // "user_registered": {},
 // "ID": {
 //     // "sync_egress":1,
 //     // "sync_label":"TT ID" 
-// },
-// "user_login": {
-//     // "sync_egress":1
-//     // "sync_label":"TT username"
 // },
 // "user_pass": {},
 // "user_nicename": {},
