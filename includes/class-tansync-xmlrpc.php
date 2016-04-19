@@ -40,7 +40,7 @@ class Tansync_XMLRPC
         // check key is in sync_field_settings
         $sync_field_settings = $this->settings->get_sync_settings();
         $errors = array();
-        if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_field | sync_field_settings:".serialize($sync_field_settings));
+        // if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_field | sync_field_settings:".serialize($sync_field_settings));
         if($key and isset($sync_field_settings[$key])){
             $key_settings = (array)$sync_field_settings[$key];
             // check if key can be used on ingress sync
@@ -72,7 +72,7 @@ class Tansync_XMLRPC
         $core_updates = array();
         $meta_updates = array();
         $errors = array();
-        if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_fields | SETTINGS:".serialize($sync_field_settings));
+        // if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_fields | SETTINGS:".serialize($sync_field_settings));
         foreach ($fields as $key => $newVal) {
             if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_fields | KEY: $key | newVal:".serialize($newVal) );
             if(isset($sync_field_settings[$key])){
@@ -82,7 +82,7 @@ class Tansync_XMLRPC
                         // wp_update_user( array($key => $newVal) );
                         $core_updates[$key] = $newVal;
                     } else {
-                        update_user_meta( $user_id, $key, $newVal );
+                        // update_user_meta( $user_id, $key, $newVal );
                         $meta_updates[$key] = $newVal;
                     }
                 } else {
@@ -100,6 +100,15 @@ class Tansync_XMLRPC
             if($return != $user_id){
                 $errors['core'] = $return;
             }
+            if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_fields | CORE COMPLETE");
+        }
+        if($meta_updates){
+            if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_fields | META_UPDATES:".serialize($meta_updates));
+            foreach ($meta_updates as $key => $value) {
+                if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_fields | META UPDATE KEY:".serialize($key));
+                update_user_meta( $user_id, $key, $value );
+            }
+            if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->update_user_fields | META COMPLETE:".serialize($meta_updates));
         }
         return serialize($errors);
 
@@ -175,13 +184,22 @@ class Tansync_XMLRPC
         $fields_json_base64 = isset($args[4])?$args[4]:null;
         if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->xmlrpc_update_user_fields | fields_json_base64:".serialize($fields_json_base64));
         if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->xmlrpc_update_user_fields | fields_json:".serialize(base64_decode($fields_json_base64)));
-        $fields = json_decode(base64_decode($fields_json_base64));
 
+        $return_obj = array("error_status" => "pass");
         try {
+            $fields = json_decode(base64_decode($fields_json_base64));
             $return = $this->update_user_fields($user_id, $fields);
-            return "Success: ".serialize($return);
+            
+            if(!empty($return)){
+                $return_obj['error_status'] = "partial";
+                $return_obj['errors'] = $return;
+            }
+            return json_encode($return_obj);
         } catch(Exception $e){
-            return "Failed up update: ".serialize($e);
+            if(TANSYNC_DEBUG) error_log("TanSync_XMLRPC->xmlrpc_update_user_fields | failed to update:".serialize($e->getMessage()));
+            $return_obj['error_status'] = "fail";
+            $return_obj['errors'] = array($e->getMessage());
+            return json_encode($return_obj);
         }
 
 
