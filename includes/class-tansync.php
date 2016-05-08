@@ -108,7 +108,7 @@ class TanSync {
 	 * @access  public
 	 * @since   1.0.0
 	 */
-	public $xmlrpc = null;
+	public $api = null;
 
 	/**
 	 * Constructor function.

@@ -34,6 +34,21 @@
         "sync_egress": 1,
         "sync_ingress": 1
     },
+    "name_prefix": {
+        "label": "Name Prefix",
+        "sync_egress": 1,
+        "sync_ingress": 1
+    },
+    "name_suffix": {
+        "label": "Name Suffix",
+        "sync_egress": 1,
+        "sync_ingress": 1
+    },
+    "middle_name": {
+        "label": "Middle Name",
+        "sync_egress": 1,
+        "sync_ingress": 1
+    },
     "nickname": {
         "sync_label": "Contact",
         "sync_egress": 1,
@@ -63,6 +78,11 @@
         "sync_label":"Postcode",
         "sync_egress":1,
         "sync_ingress":1
+    },
+    "billing_country":{
+        "sync_label":"Country",
+        "sync_egress":1,
+        "sync_ingress":1    
     },
     "billing_state":{
         "sync_label":"State",
@@ -180,13 +200,17 @@
         "label":"Mobile Phone Preferred",
         "profile_display": 1,
         "profile_modify": 1,
-        "contact_method": 1        
+        "contact_method": 1,
+        "sync_egress":1,
+        "sync_ingress":1        
     },
     "pref_tel":{
         "label":"Phone Preferred",
         "profile_display": 1,
         "profile_modify": 1,
-        "contact_method": 1   
+        "contact_method": 1,
+        "sync_egress":1,
+        "sync_ingress":1   
     },
     "facebook":{
         "label":"Facebook Username",
