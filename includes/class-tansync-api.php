@@ -19,10 +19,20 @@ class Tansync_API
         if(TANSYNC_DEBUG) error_log("calling Tansync_API -> __construct");
         $this->parent = TanSync::instance();
         $this->settings = $this->parent->settings;
+        $this->synchronization = $this->parent->synchronization;
         add_filter( 'xmlrpc_methods', array(&$this, 'new_xmlrpc_methods'), 0, 1);
         add_action( 'rest_api_init', array(&$this, 'register_rest_methods') );
+        add_action( 'wp_json_server_before_serve', array(&$this, 'on_wp_json_server_before_serve') );
     }
 
+    function wp_json_server_before_serve(){
+        if (defined('XMLRPC_REQUEST') and XMLRPC_REQUEST){
+            $this->synchronization->cancel_queued_updates();
+        }
+        if (defined('JSON_REQUEST') and JSON_REQUEST){
+            $this->synchronization->cancel_queued_updates();
+        }
+    }
 
     function get_user_strict($user_id){
         $user = get_user_by("ID", $user_id);
@@ -249,6 +259,8 @@ class Tansync_API
 
     function register_rest_methods() {
         if(TANSYNC_DEBUG) error_log("calling Tansync_API -> register_rest_methods");
+
+        $this->synchronization->cancel_queued_updates();
 
         register_rest_field(
             'user',

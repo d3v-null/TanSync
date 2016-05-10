@@ -58,12 +58,11 @@ class Tansync_Synchronization{
         $this->parent = TanSync::instance();
         $this->settings = $this->parent->settings;
 
-        add_action( 'admin_init', array(&$this, 'store_initial_userdata'), 999);
+        add_action( 'admin_init', array(&$this, 'on_admin_init'), 999);
+        add_action( 'template_redirect', array(&$this, 'on_template_redirect'), 0);
 
         add_action( 'profile_update', array(&$this, 'handle_profile_update'), 1, 2);
-
         add_action( 'user_register', array(&$this, 'handle_user_register'), 1, 1 );
-
         add_action( 'plugins_loaded', array(&$this, 'update_report_email'), 1 );
     }
 
@@ -167,8 +166,7 @@ class Tansync_Synchronization{
         return $userdata;
     }
 
-
-    public function store_initial_userdata(){
+    public function determine_user_id(){
         global $user_id;
         if(isset($user_id) and $user_id){
             if(TANSYNC_DEBUG) error_log("user_id set and true");
@@ -187,6 +185,12 @@ class Tansync_Synchronization{
                 $_user_id = get_current_user_id();
             }
         } 
+        return $_user_id;
+    }
+
+
+    public function store_initial_userdata(){
+        $_user_id = $this->determine_user_id();
         if($_user_id){
             if(TANSYNC_DEBUG) error_log("user id found:".serialize($_user_id));
             $this->initial_userdata = $this->get_userdata($_user_id);
@@ -194,6 +198,35 @@ class Tansync_Synchronization{
             if(TANSYNC_DEBUG) error_log("user id not found");
             $this->initial_userdata = array();
         }
+        if(TANSYNC_DEBUG) error_log("initial_userdata: ".serialize($this->initial_userdata));
+    }
+
+    public function on_template_redirect(){
+
+        if (! empty( $_POST[ 'action' ] ) && ('save_account_details' == $_POST[ 'action' ] || 'edit_address' == $_POST[ 'action' ])) {
+            $_user_id = $this->determine_user_id();
+            if($_user_id){
+                if(TANSYNC_DEBUG) error_log("STORING INITIAL USERDATA BECAUSE TEMPLATE REDIRECT");
+                $this->store_initial_userdata();
+                $this->queue_update($_user_id);
+            }
+        }
+    }
+
+    public function on_admin_init(){
+        if(TANSYNC_DEBUG) error_log("STORING INITIAL USERDATA BECAUSE ADMIN INIT");
+        if (! empty( $_POST[ 'action' ] )){
+            if(TANSYNC_DEBUG) error_log("POST ACTION IS ".serialize($_POST['action']));
+        }
+        $this->store_initial_userdata();
+    }
+
+    public function cancel_queued_updates(){
+        if(TANSYNC_DEBUG) error_log("CANCELLING QUEUED UPDATES");
+        if (! empty( $_POST[ 'action' ] )){
+            if(TANSYNC_DEBUG) error_log("POST ACTION IS ".serialize($_POST['action']));
+        }
+        add_filter('tansync_update_handled', function($handled) { return 1; });
     }
 
     // public function get_ingress_updates(){
@@ -235,6 +268,8 @@ class Tansync_Synchronization{
             if(TANSYNC_DEBUG) error_log("TANSYNC: sync settings configured incorrectly");
         }
 
+        if(TANSYNC_DEBUG) error_log("TANSYNC: synced fields are".serialize($synced_fields));
+
         return $synced_fields;
     }
 
@@ -244,6 +279,11 @@ class Tansync_Synchronization{
         $this->modified_user = $userid;
 
         add_action("shutdown", function() use ($userid){
+            $handled = apply_filters('tansync_update_handled', 0);
+            if ($handled){
+                return;
+            }
+
             $userdata = $this->get_userdata($userid);
             if(isset($this->initial_userdata)){
                 $userdata_old = $this->initial_userdata;
@@ -294,7 +334,9 @@ class Tansync_Synchronization{
                     'changed' => '%s',
                     'data' => '%s'
                 )
-            );        
+            );      
+
+            add_filter('tansync_update_handled', function() { return 1; });  
         });
     }
 

@@ -35,7 +35,7 @@
 "client_grade": {"sync_egress": 0, "profile_display": 1, "sync_label": "Client Grade", "sync_ingress": 1},
 "direct_brand": {"sync_egress": 0, "sync_label": "Direct Brand", "sync_ingress": 1},
 "agent": {"sync_egress": 0, "profile_display": 1, "sync_label": "Agent", "sync_ingress": 1},
-"user_url": {"core": 1, "profile_display": 1, "profile_modify": 1, "sync_label": "Web Site", "sync_ingress": 1, "sync_egress": 1},
+"user_url": {"core": 1, "sync_egress": 1, "sync_label": "Web Site", "sync_ingress": 1},
 "abn": {"profile_modify": 1, "sync_egress": 1, "profile_display": 1, "sync_label": "ABN", "sync_ingress": 1},
 "business_type": {"sync_egress": 1, "profile_display": 1, "sync_label": "Business Type", "sync_ingress": 1},
 "how_hear_about": {"sync_egress": 1, "sync_label": "Lead Source", "sync_ingress": 1},
