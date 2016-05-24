@@ -12,7 +12,7 @@ define( 'TANSYNC_COMPLETE', 2);
 * Deals with the extra fields
 */
 class Tansync_Synchronization{
-    
+
     /**
      * The single instance of Tansync_Synchronization.
      * @var     object
@@ -104,7 +104,7 @@ class Tansync_Synchronization{
 
         $sql = "DROP TABLE $update_table_name;";
 
-        $wpdb->query($sql); 
+        $wpdb->query($sql);
     }
 
     public function validate_install(){
@@ -147,7 +147,7 @@ class Tansync_Synchronization{
     public function get_userdata($userid){
         $usermeta = get_user_meta( $userid );
         if($usermeta){
-            // error_log("usermeta ".serialize($usermeta));           
+            // error_log("usermeta ".serialize($usermeta));
         } else {
             $usermeta = array();
         }
@@ -169,22 +169,22 @@ class Tansync_Synchronization{
     public function determine_user_id(){
         global $user_id;
         if(isset($user_id) and $user_id){
-            if(TANSYNC_DEBUG) error_log("user_id set and true");
+            // if(TANSYNC_DEBUG) error_log("user_id set and true");
             $_user_id = $user_id;
         } else {
-            if(TANSYNC_DEBUG) error_log("user_id not set or false");
+            // if(TANSYNC_DEBUG) error_log("user_id not set or false");
             if(function_exists('wp_reset_vars')){
                 wp_reset_vars( array( 'user_id' ) ); }
             else {
-                if(TANSYNC_DEBUG) error_log("wp_reset_vars DNE");
+                // if(TANSYNC_DEBUG) error_log("wp_reset_vars DNE");
             }
             if(isset($user_id) and $user_id){
-                if(TANSYNC_DEBUG) error_log("user_id set and true");
+                // if(TANSYNC_DEBUG) error_log("user_id set and true");
                 $_user_id = $user_id;
             } else {
                 $_user_id = get_current_user_id();
             }
-        } 
+        }
         return $_user_id;
     }
 
@@ -192,13 +192,13 @@ class Tansync_Synchronization{
     public function store_initial_userdata(){
         $_user_id = $this->determine_user_id();
         if($_user_id){
-            if(TANSYNC_DEBUG) error_log("user id found:".serialize($_user_id));
+            // if(TANSYNC_DEBUG) error_log("user id found:".serialize($_user_id));
             $this->initial_userdata = $this->get_userdata($_user_id);
         } else {
-            if(TANSYNC_DEBUG) error_log("user id not found");
+            // if(TANSYNC_DEBUG) error_log("user id not found");
             $this->initial_userdata = array();
         }
-        if(TANSYNC_DEBUG) error_log("initial_userdata: ".serialize($this->initial_userdata));
+        // if(TANSYNC_DEBUG) error_log("initial_userdata: ".serialize($this->initial_userdata));
     }
 
     public function on_template_redirect(){
@@ -206,7 +206,7 @@ class Tansync_Synchronization{
         if (! empty( $_POST[ 'action' ] ) && ('save_account_details' == $_POST[ 'action' ] || 'edit_address' == $_POST[ 'action' ])) {
             $_user_id = $this->determine_user_id();
             if($_user_id){
-                if(TANSYNC_DEBUG) error_log("STORING INITIAL USERDATA BECAUSE TEMPLATE REDIRECT");
+                // if(TANSYNC_DEBUG) error_log("STORING INITIAL USERDATA BECAUSE TEMPLATE REDIRECT");
                 $this->store_initial_userdata();
                 $this->queue_update($_user_id);
             }
@@ -214,41 +214,41 @@ class Tansync_Synchronization{
     }
 
     public function on_admin_init(){
-        if(TANSYNC_DEBUG) error_log("STORING INITIAL USERDATA BECAUSE ADMIN INIT");
+        // if(TANSYNC_DEBUG) error_log("STORING INITIAL USERDATA BECAUSE ADMIN INIT");
         if (! empty( $_POST[ 'action' ] )){
-            if(TANSYNC_DEBUG) error_log("POST ACTION IS ".serialize($_POST['action']));
+            // if(TANSYNC_DEBUG) error_log("POST ACTION IS ".serialize($_POST['action']));
         }
         $this->store_initial_userdata();
     }
 
     public function cancel_queued_updates(){
-        if(TANSYNC_DEBUG) error_log("CANCELLING QUEUED UPDATES");
+        // if(TANSYNC_DEBUG) error_log("CANCELLING QUEUED UPDATES");
         if (! empty( $_POST[ 'action' ] )){
-            if(TANSYNC_DEBUG) error_log("POST ACTION IS ".serialize($_POST['action']));
+            // if(TANSYNC_DEBUG) error_log("POST ACTION IS ".serialize($_POST['action']));
         }
         add_filter('tansync_update_handled', function($handled) { return 1; });
     }
 
     // public function get_ingress_updates(){
-    //     //TODO: 
-    //     // SELECT * FROM 
+    //     //TODO:
+    //     // SELECT * FROM
     //     // global $wpdb
     //     // $sql = $wpdb->prepare( 'SELECT sync_id, ')
     //     // $results = wpdb->get_results( 'SELECT * FROM ')
     // }
 
     // public function get_egress_updates(){
-    //     //TODO: 
+    //     //TODO:
     // }
 
 
     public function handle_profile_update($userid, $old_userdata=null){
-        if(TANSYNC_DEBUG) error_log("USER PROFILE UPDATE".serialize($userid));
+        // if(TANSYNC_DEBUG) error_log("USER PROFILE UPDATE".serialize($userid));
         $this->queue_update($userid);
     }
 
     public function handle_user_register($userid){
-        if(TANSYNC_DEBUG) error_log("USER REGISTRATION: ".serialize($userid));
+        // if(TANSYNC_DEBUG) error_log("USER REGISTRATION: ".serialize($userid));
         $this->queue_update($userid);
     }
 
@@ -265,10 +265,10 @@ class Tansync_Synchronization{
                 }
             }
         } else {
-            if(TANSYNC_DEBUG) error_log("TANSYNC: sync settings configured incorrectly");
+            // if(TANSYNC_DEBUG) error_log("TANSYNC: sync settings configured incorrectly");
         }
 
-        if(TANSYNC_DEBUG) error_log("TANSYNC: synced fields are".serialize($synced_fields));
+        // if(TANSYNC_DEBUG) error_log("TANSYNC: synced fields are".serialize($synced_fields));
 
         return $synced_fields;
     }
@@ -290,7 +290,7 @@ class Tansync_Synchronization{
             } else {
                 $userdata_old = array();
             }
-            
+
             // filter only sync'd fields
             $syncdata = array();
             $changed = array();
@@ -319,8 +319,8 @@ class Tansync_Synchronization{
             $update_table_name = $wpdb->prefix . $this->update_table_suffix ;
 
             $wpdb->insert(
-                $update_table_name, 
-                array( 
+                $update_table_name,
+                array(
                     'user_id' => $userid,
                     'direction' => TANSYNC_EGRESS,
                     'status' => TANSYNC_VIRGIN,
@@ -334,9 +334,9 @@ class Tansync_Synchronization{
                     'changed' => '%s',
                     'data' => '%s'
                 )
-            );      
+            );
 
-            add_filter('tansync_update_handled', function() { return 1; });  
+            add_filter('tansync_update_handled', function() { return 1; });
         });
     }
 
@@ -346,7 +346,7 @@ class Tansync_Synchronization{
             $interval = $this->settings->settings['Sync']['fields']['sync_email_interval']['default'];
         }
         // error_log("interval is ".$interval);
-        return $interval;        
+        return $interval;
     }
 
     public function get_unsyncd_updates($time_from = null, $time_to = null){
@@ -369,12 +369,12 @@ class Tansync_Synchronization{
         $sql = $wpdb->prepare(
             "
                 SELECT ud.user_id, ud.data, ud.changed
-                FROM 
+                FROM
                     $update_table_name ud
                     INNER JOIN(
                         SELECT um.ID, MAX(um.time)
                         FROM $update_table_name  um
-                        WHERE 
+                        WHERE
                             UNIX_TIMESTAMP(um.time) BETWEEN %s AND %s
                             AND (
                                 um.status = %d
@@ -402,7 +402,7 @@ class Tansync_Synchronization{
 
     // public function cron_add_tansync_update_interval( $schedules ){
     //     // error_log("calling Tansync_Synchronization -> cron_add_tansync_update_interval");
-        
+
     //     $interval = $this->get_update_interval();
 
     //     $schedules['tansync_update'] = array(
@@ -583,9 +583,9 @@ class Tansync_Synchronization{
     //         error_log("now: ".serialize($now));
 
     //         wp_schedule_event(
-    //             $now + $interval, 
-    //             'tansync_update', 
-    //             'tansync_cron_report_update', 
+    //             $now + $interval,
+    //             'tansync_update',
+    //             'tansync_cron_report_update',
     //             array(
     //                 $now
     //             )
