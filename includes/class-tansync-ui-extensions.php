@@ -190,7 +190,7 @@ class Tansync_UI_Extensions
 		// User-Edit Contact Methods
 		if(in_array($pagenow, array("user-edit.php", "profile.php"))){
 			// $this->synchronization->process_pending_updates();
-			$this->filter_acui_columns();
+			// $this->filter_acui_columns();
 			add_filter('user_contactmethods', array($this, 'modify_contact_fields'));
 		}
 	}
@@ -237,20 +237,40 @@ class Tansync_UI_Extensions
 		$this->output_master_role_admin($user);
 	}
 
+	public function handle_update_fields($user, $fields) {
+		$post_filtered = filter_input_array( INPUT_POST );
+
+		foreach ($fields as $key) {
+			if(isset($post_filtered[$key])){
+				if(TANSYNC_DEBUG) error_log("-> post is set ");
+				$master_role = $post_filtered[$key];
+				if(is_array($master_role)) $master_role = $master_role[0];
+				if(is_string($master_role)){
+					update_user_meta($user, $key, $master_role);
+				}
+			}
+		}
+
+
+	}
+
 	public function update_master_role($user) {
 		if(TANSYNC_DEBUG) error_log("calling update_master_role");
 		$master_role_field = $this->groups_roles->master_role_field;
-		if(TANSYNC_DEBUG) error_log(" -> master_role_field:".$master_role_field);
-		$post_filtered = filter_input_array( INPUT_POST );
-
-		if(isset($post_filtered[$master_role_field])){
-			if(TANSYNC_DEBUG) error_log("-> post is set ");
-			$master_role = $post_filtered[$master_role_field];
-			if(is_array($master_role)) $master_role = $master_role[0];
-			if(is_string($master_role)){
-				update_user_meta($user, $master_role_field, $master_role);
-			}
-		}
+		$this->handle_update_fields($user, array(
+			$master_role_field
+		));
+		// if(TANSYNC_DEBUG) error_log(" -> master_role_field:".$master_role_field);
+		// $post_filtered = filter_input_array( INPUT_POST );
+		//
+		// if(isset($post_filtered[$master_role_field])){
+		// 	if(TANSYNC_DEBUG) error_log("-> post is set ");
+		// 	$master_role = $post_filtered[$master_role_field];
+		// 	if(is_array($master_role)) $master_role = $master_role[0];
+		// 	if(is_string($master_role)){
+		// 		update_user_meta($user, $master_role_field, $master_role);
+		// 	}
+		// }
 	}
 
 	public function display_my_account_fields(){
@@ -433,35 +453,35 @@ class Tansync_UI_Extensions
 		$synchronization->queue_update($user_id);
 	}
 
-	public function filter_acui_columns(){
-		$acui_columns = get_option("acui_columns");
-		// error_log("acui_columns: ".serialize($acui_columns));
-		// error_log(" -> acui is_array ". is_array($acui_columns));
-		// error_log(" -> acui not empty ". !empty($acui_columns));
-		if(is_array($acui_columns) && !empty($acui_columns)){
-			// error_log("made it this far");
-			$new_columns = array();
-			$extra_fields = array_keys($this->get_contact_fields());
-			$core_fields = $this->get_user_edit_fields();
-			// error_log("extra fields: ".serialize($extra_fields));
-			// error_log("core fields: ".serialize($core_fields));
-			foreach ($acui_columns as $key => $column) {
-				// error_log("evaluating key, col".serialize($key).serialize($column));
-				if(in_array($column, $extra_fields)) {
-					// error_log('removing column because extra '.$column);
-					continue;
-				}
-				if(in_array($column, $core_fields)) {
-					// error_log('removing column because core '.$column);
-					continue;
-				}
-				if(in_array($column, $new_columns)) {
-					// error_log('removing column because not unique '.$column);
-					continue;
-				}
-				array_push($new_columns, $column);
-			}
-			update_option("acui_columns", $new_columns);
-		}
-	}
+	// public function filter_acui_columns(){
+	// 	$acui_columns = get_option("acui_columns");
+	// 	// error_log("acui_columns: ".serialize($acui_columns));
+	// 	// error_log(" -> acui is_array ". is_array($acui_columns));
+	// 	// error_log(" -> acui not empty ". !empty($acui_columns));
+	// 	if(is_array($acui_columns) && !empty($acui_columns)){
+	// 		// error_log("made it this far");
+	// 		$new_columns = array();
+	// 		$extra_fields = array_keys($this->get_contact_fields());
+	// 		$core_fields = $this->get_user_edit_fields();
+	// 		// error_log("extra fields: ".serialize($extra_fields));
+	// 		// error_log("core fields: ".serialize($core_fields));
+	// 		foreach ($acui_columns as $key => $column) {
+	// 			// error_log("evaluating key, col".serialize($key).serialize($column));
+	// 			if(in_array($column, $extra_fields)) {
+	// 				// error_log('removing column because extra '.$column);
+	// 				continue;
+	// 			}
+	// 			if(in_array($column, $core_fields)) {
+	// 				// error_log('removing column because core '.$column);
+	// 				continue;
+	// 			}
+	// 			if(in_array($column, $new_columns)) {
+	// 				// error_log('removing column because not unique '.$column);
+	// 				continue;
+	// 			}
+	// 			array_push($new_columns, $column);
+	// 		}
+	// 		update_option("acui_columns", $new_columns);
+	// 	}
+	// }
 }
