@@ -77,14 +77,14 @@ class TanSync {
 	 * @since   1.0.0
 	 */
 	public $script_suffix;
-
-	/**
-	 * Extra Fields
-	 * @var 	object
-	 * @access  public
-	 * @since   1.0.0
-	 */
-	public $extra_fields = null;
+	// 
+	// /**
+	//  * Extra Fields
+	//  * @var 	object
+	//  * @access  public
+	//  * @since   1.0.0
+	//  */
+	// public $extra_fields = null;
 
 	/**
 	 * Synchronization object

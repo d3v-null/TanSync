@@ -239,7 +239,7 @@ class Tansync_UI_Extensions
 
 	public function update_master_role($user) {
 		if(TANSYNC_DEBUG) error_log("calling update_master_role");
-		$master_role_field = $this->groups_roles->naster_role_field;
+		$master_role_field = $this->groups_roles->master_role_field;
 		if(TANSYNC_DEBUG) error_log(" -> master_role_field:".$master_role_field);
 		$post_filtered = filter_input_array( INPUT_POST );
 
