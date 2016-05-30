@@ -124,6 +124,21 @@ class Tansync_API
         return json_encode($errors);
     }
 
+    function construct_api_error($message, $code=null){
+        if(is_null($code)){
+            $code = 'general';
+        }
+        if(!is_string($code)){
+            $code = strval($code);
+        }
+        $data = date('Y-m-d H:i:s');
+        if(TANSYNC_DEBUG) error_log("Tansync_API->construct_api_error | code:".serialize($code));
+        if(TANSYNC_DEBUG) error_log("Tansync_API->construct_api_error | message:".serialize( $message));
+        $error = new WP_Error($message, $code, $data);
+        // $error->add_data($data, $code);
+        return $error;
+    }
+
     function update_user_fields($user_id, $fields){
         $user = $this->get_user_strict($user_id);
         if(TANSYNC_DEBUG) error_log("Tansync_API->update_user_fields | USERID:".serialize($user_id));
@@ -136,21 +151,31 @@ class Tansync_API
         // if(TANSYNC_DEBUG) error_log("Tansync_API->update_user_fields | SETTINGS:".serialize($sync_field_settings));
         foreach ($fields as $key => $newVal) {
             if(TANSYNC_DEBUG) error_log("Tansync_API->update_user_fields | KEY: $key | newVal:".serialize($newVal) );
-            if(isset($sync_field_settings[$key])){
-                $key_settings = (array)$sync_field_settings[$key];
-                if(isset($key_settings['sync_ingress']) and $key_settings['sync_ingress']){
-                    if(isset($key_settings['core']) and $key_settings['core']){
-                        // wp_update_user( array($key => $newVal) );
-                        $core_updates[$key] = $newVal;
-                    } else {
-                        // update_user_meta( $user_id, $key, $newVal );
-                        $meta_updates[$key] = $newVal;
-                    }
-                } else {
-                    $errors[$key] = "Field not Ingress";
-                }
+            if(!is_string($key) ){
+                return $this->construct_api_error(
+                    "Key is not a string: ".serialize($key),
+                    "key_inv"
+                );
+            }
+            if(!isset($sync_field_settings[$key])){
+                return $this->construct_api_error(
+                    "Unrecognized key: ".serialize($key),
+                    "key_unkn"
+                );
+            }
+            $key_settings = (array)$sync_field_settings[$key];
+            if(!isset($key_settings['sync_ingress']) or !$key_settings['sync_ingress']){
+                return $this->construct_api_error(
+                    "Key is not ingress: ".serialize($key),
+                    "key_not_ingress"
+                );
+            }
+            if(isset($key_settings['core']) and $key_settings['core']){
+                // wp_update_user( array($key => $newVal) );
+                $core_updates[$key] = $newVal;
             } else {
-                $errors[$key] = "Invalid key";
+                // update_user_meta( $user_id, $key, $newVal );
+                $meta_updates[$key] = $newVal;
             }
         }
         if($core_updates){
@@ -159,7 +184,10 @@ class Tansync_API
             $response = wp_update_user($core_updates);
             if(TANSYNC_DEBUG) error_log("Tansync_API->update_user_fields | CORE_RETURN:".serialize($response));
             if(is_wp_error($response)){
-                return $response;
+                return $this->construct_api_error(
+                    $response->get_error_message(),
+                    $response->get_error_code()
+                );
             }
             if(TANSYNC_DEBUG) error_log("Tansync_API->update_user_fields | CORE COMPLETE");
         }
@@ -167,14 +195,17 @@ class Tansync_API
             if(TANSYNC_DEBUG) error_log("Tansync_API->update_user_fields | META_UPDATES:".serialize($meta_updates));
             foreach ($meta_updates as $key => $value) {
                 if(TANSYNC_DEBUG) error_log("Tansync_API->update_user_fields | META UPDATE KEY:".serialize($key));
-                update_user_meta( $user_id, $key, $value );
+                $response = update_user_meta( $user_id, $key, $value );
+                if(is_wp_error($response)){
+                    return $this->construct_api_error(
+                        $response->get_error_message(),
+                        $response->get_error_code()
+                    );
+                }
             }
             if(TANSYNC_DEBUG) error_log("Tansync_API->update_user_fields | META COMPLETE:".serialize($meta_updates));
         }
         if(TANSYNC_DEBUG) error_log("Tansync_API->update_user_fields | RETURNING:".serialize($errors));
-
-        return serialize($errors);
-
     }
 
 // function mynamespace_getUserID( $args ) {
@@ -309,27 +340,32 @@ class Tansync_API
         // }
     }
 
-    function handle_json_request_custom_error(  $error){
+    function handle_json_get_user_last_error( $object, $field_name, $request ) {
+        if(TANSYNC_DEBUG) error_log("Tansync_API->handle_json_get_user_last_error | handling:".serialize($object));
+        $user_id = $object['id'];
+        return get_user_meta($user_id, 'tansync_last_error');
+    }
 
-      // I can't believe i actually have to hook on to this fucking filter:
+    function handle_json_request_custom_error( $error ){
+        // I can't believe i actually have to hook on to this fucking filter:
 
-      // /**
-      //  * Filter user data returned from the REST API.
-      //  *
-      //  * @param WP_REST_Response $response  The response object.
-      //  * @param object           $user      User object used to create response.
-      //  * @param WP_REST_Request  $request   Request object.
-      //  */
-      // return apply_filters( 'rest_prepare_user', $response, $user, $request );
+        // /**
+        //  * Filter user data returned from the REST API.
+        //  *
+        //  * @param WP_REST_Response $response  The response object.
+        //  * @param object           $user      User object used to create response.
+        //  * @param WP_REST_Request  $request   Request object.
+        //  */
+        // return apply_filters( 'rest_prepare_user', $response, $user, $request );
 
-      add_filter(
-        'rest_prepare_user',
-        function($response, $user, $request) use ($error){
-          Tansync_API::poison_rest_prepare_user($response, $user, $request, $error);
-        },
-        10,
-        3
-      );
+        add_filter(
+            'rest_prepare_user',
+            function($response, $user, $request) use ($error){
+                Tansync_API::poison_rest_prepare_user($response, $user, $request, $error);
+            },
+            10,
+            3
+        );
     }
 
     static function poison_rest_prepare_user($response, $user, $request, $error){
@@ -340,6 +376,8 @@ class Tansync_API
       if(TANSYNC_DEBUG) error_log("Tansync_API -> poison_rest_prepare_user: error".serialize($error));
       // $new_response = new WP_REST_Response( $data );
       // return Tansync_API::errorToResponse($error);
+      $user_id = $user->ID;
+      update_user_meta($user_id, 'tansync_last_error', serialize($error));
       return $error;
       // return $response;
     }
@@ -377,6 +415,16 @@ class Tansync_API
             array(
                 'get_callback'     => null,
                 'update_callback'  => array($this, 'handle_json_update_user_fields'),
+                'schema'           => null,
+            )
+        );
+
+        register_rest_field(
+            'user',
+            'tansync_last_error',
+            array(
+                'get_callback'     => array($this, 'handle_json_get_user_last_error'),
+                'update_callback'  => null,
                 'schema'           => null,
             )
         );
