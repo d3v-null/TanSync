@@ -56,12 +56,12 @@ function TanSync () {
         $instance->synchronization = TanSync_Synchronization::instance( );
     }
 
-    if ( is_null( $instance->extra_fields ) ) {
-        $instance->extra_fields = Tansync_UI_Extensions::instance( );
-    }
-
     if ( is_null( $instance->groups_roles ) ) {
         $instance->groups_roles = Tansync_Groups_Roles_Members::instance( );
+    }
+
+    if ( is_null( $instance->extra_fields ) ) {
+        $instance->extra_fields = Tansync_UI_Extensions::instance( );
     }
 
     if ( is_null( $instance->api ) ) {

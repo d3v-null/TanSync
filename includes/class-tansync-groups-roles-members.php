@@ -19,7 +19,7 @@ class Tansync_Groups_Roles_Members
      * @var     object
      * @access  public
      * @since   1.0.0
-     */    
+     */
     public $parent = null;
 
     function __construct()
@@ -30,10 +30,10 @@ class Tansync_Groups_Roles_Members
         // add_action('plugins_loaded', array(&$this, 'test_refresh_user'));
         // add_action('plugins_loaded', array(&$this, 'maybe_role_refresh'));
 
-        add_action( 'profile_update', array(&$this, 'update_master_role'), 1, 1);
         add_action( 'profile_update', array(&$this, 'refresh_user'), 2, 1);
-        add_action( 'edit_user_profile', array( &$this, 'edit_user_profile' ) );
-        add_action( 'show_user_profile', array( &$this, 'show_user_profile' ) );
+        // add_action( 'profile_update', array(&$this, 'update_master_role'), 1, 1);
+        // add_action( 'edit_user_profile', array( &$this, 'edit_user_profile' ) );
+        // add_action( 'show_user_profile', array( &$this, 'show_user_profile' ) );
 
         add_filter( 'tansync_get_my_account_fields', array(&$this, 'add_master_field'));
 
@@ -59,7 +59,7 @@ class Tansync_Groups_Roles_Members
             $this->master_role_field = $role_field;
         } else {
             $this->master_role_field = 'act_role';
-        }        
+        }
 
         //default_role
         $default_role = $settings->get_option('default_role');
@@ -84,12 +84,12 @@ class Tansync_Groups_Roles_Members
             foreach ($user_query->results as $userid) {
                 if(TANSYNC_DEBUG) error_log("REFRESH: -> user ".serialize($userid));
                 $this->refresh_user($userid);
-            }            
+            }
 
             $o += $n;
             $user_query = new WP_User_Query( array( 'fields' => 'ID', 'number' => $n, 'offset' => $o ) );
         }
-        
+
         if(TANSYNC_DEBUG) error_log("REFRESH: complete");
     }
 
@@ -124,10 +124,10 @@ class Tansync_Groups_Roles_Members
             if(isset($mapping[$role])){
                 $parameters = $mapping[$role];
                 if( isset($parameters['roles'])){
-                    $expected_roles = array_merge($expected_roles, $parameters['roles']); 
+                    $expected_roles = array_merge($expected_roles, $parameters['roles']);
                 }
                 if( isset($parameters['groups'])){
-                    $expected_groups = array_merge($expected_groups, $parameters['groups']); 
+                    $expected_groups = array_merge($expected_groups, $parameters['groups']);
                 }
                 if( isset($parameters['memberships'])){
                     $expected_memberships = array_merge($expected_memberships, $parameters['memberships']);
@@ -166,7 +166,7 @@ class Tansync_Groups_Roles_Members
                     Groups_User_Group::create(
                         array(
                             'group_id'  => $gid,
-                            'user_id'   => $userid, 
+                            'user_id'   => $userid,
                         )
                     );
                 } else {
@@ -250,7 +250,7 @@ class Tansync_Groups_Roles_Members
                                 continue;
                             } else {
                                 if(TANSYNC_DEBUG) error_log(" -> didn't fail making post");
-                            } 
+                            }
 
                             // update_post_meta( $user_membership_id, '_group_id', $group_id );
                             update_post_meta( $user_membership_id, '_start_date', current_time( 'mysql', true ) );
@@ -301,54 +301,54 @@ class Tansync_Groups_Roles_Members
         }
         return $fields;
     }
-    
-    public function output_master_role_admin($user) {
-        if(TANSYNC_DEBUG) error_log("output master role admin");
-        if( is_admin()){
-            if(TANSYNC_DEBUG) error_log(" -> is_admin");
-            // error_log(" -> user:".serialize($user));
 
-            $master_role_field = $this->master_role_field;
-            $master_role = $this->get_user_master_role($user);
-            $output = '<h3>' . __( 'Master role',TANSYNC_DOMAIN ) . '</h3>';
-            $output .= '<table class="form-table">';
-            $output .= '<tbody>';
-            $output .= '<tr class="'.$master_role_field.'-wrap">';
-            $output .= '<th><label for="'.$master_role_field.'">'.__('Master Role', TANSYNC_DOMAIN).' </label></th>';
-            $output .= '<td><input type="text" name="'.$master_role_field.'" id="'.$master_role_field.'" value="'.$master_role.'" class="regular-text ltr"></td>';
-            $output .= '</tr>';
-            $output .= '</tbody>';
-            $output .= '<table>';
-            echo $output;
-        } else {
-            if(TANSYNC_DEBUG) error_log(" -> not is_admin");
-        }        
-    }
+    // public function output_master_role_admin($user) {
+    //     if(TANSYNC_DEBUG) error_log("output master role admin");
+    //     if( is_admin()){
+    //         if(TANSYNC_DEBUG) error_log(" -> is_admin");
+    //         // error_log(" -> user:".serialize($user));
+    //
+    //         $master_role_field = $this->master_role_field;
+    //         $master_role = $this->get_user_master_role($user);
+    //         $output = '<h3>' . __( 'Master role',TANSYNC_DOMAIN ) . '</h3>';
+    //         $output .= '<table class="form-table">';
+    //         $output .= '<tbody>';
+    //         $output .= '<tr class="'.$master_role_field.'-wrap">';
+    //         $output .= '<th><label for="'.$master_role_field.'">'.__('Master Role', TANSYNC_DOMAIN).' </label></th>';
+    //         $output .= '<td><input type="text" name="'.$master_role_field.'" id="'.$master_role_field.'" value="'.$master_role.'" class="regular-text ltr"></td>';
+    //         $output .= '</tr>';
+    //         $output .= '</tbody>';
+    //         $output .= '<table>';
+    //         echo $output;
+    //     } else {
+    //         if(TANSYNC_DEBUG) error_log(" -> not is_admin");
+    //     }
+    // }
 
-    public function edit_user_profile ($user) {
-        // error_log("calling edit_user_profile");
-        $this->output_master_role_admin($user);
-    }
-
-    public function show_user_profile ($user) {
-        // error_log("calling show_user_profile");
-        $this->output_master_role_admin($user);
-    }
-
-    public function update_master_role($user) {
-        if(TANSYNC_DEBUG) error_log("calling update_master_role");
-        if(TANSYNC_DEBUG) error_log(" -> master_role_field:".$this->master_role_field);
-        $post_filtered = filter_input_array( INPUT_POST );
-
-        if(isset($post_filtered[$this->master_role_field])){
-            if(TANSYNC_DEBUG) error_log("-> post is set ");
-            $master_role = $post_filtered[$this->master_role_field];
-            if(is_array($master_role)) $master_role = $master_role[0];
-            if(is_string($master_role)){
-                update_user_meta($user, $this->master_role_field, $master_role);
-            }
-        }
-    }
+    // public function edit_user_profile ($user) {
+    //     // error_log("calling edit_user_profile");
+    //     $this->output_master_role_admin($user);
+    // }
+    //
+    // public function show_user_profile ($user) {
+    //     // error_log("calling show_user_profile");
+    //     $this->output_master_role_admin($user);
+    // }
+    //
+    // public function update_master_role($user) {
+    //     if(TANSYNC_DEBUG) error_log("calling update_master_role");
+    //     if(TANSYNC_DEBUG) error_log(" -> master_role_field:".$this->master_role_field);
+    //     $post_filtered = filter_input_array( INPUT_POST );
+    //
+    //     if(isset($post_filtered[$this->master_role_field])){
+    //         if(TANSYNC_DEBUG) error_log("-> post is set ");
+    //         $master_role = $post_filtered[$this->master_role_field];
+    //         if(is_array($master_role)) $master_role = $master_role[0];
+    //         if(is_string($master_role)){
+    //             update_user_meta($user, $this->master_role_field, $master_role);
+    //         }
+    //     }
+    // }
 
     /**
      * Main Tansync_Groups_Roles_Members Instance

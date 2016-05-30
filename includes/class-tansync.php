@@ -103,12 +103,20 @@ class TanSync {
 	public $groups_roles = null;
 
 	/**
-	 * Groups Roles object
+	 * API object
 	 * @var 	object
 	 * @access  public
 	 * @since   1.0.0
 	 */
 	public $api = null;
+
+	/**
+	 * UI object
+	 * @var 	object
+	 * @access  public
+	 * @since   1.0.0
+	 */
+	public $ui = null;
 
 	/**
 	 * Constructor function.
@@ -355,11 +363,11 @@ class TanSync {
 	// }
 
 	/**
-	 * Adds Custom Actions and Filters 
+	 * Adds Custom Actions and Filters
 	 */
 	private function add_actions_filters () {
 
-	} 
+	}
 
 
 

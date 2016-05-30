@@ -28,12 +28,17 @@ class Tansync_UI_Extensions
 		$this->parent = TanSync::instance();
 		$this->settings = $this->parent->settings;
 		$this->synchronization = $this->parent->synchronization;
+		$this->groups_roles = $this->parent->groups_roles;
 		// User Contact Methods
 		add_action('admin_init', array($this, 'modify_user_edit_admin') );
-		// My Account 
+		// My Account
 		add_action('init', array($this, 'modify_my_account'));
 		// Edit My Account
-		add_action('init', array($this, 'modify_edit_my_account'));		
+		add_action('init', array($this, 'modify_edit_my_account'));
+
+		add_action( 'profile_update', array(&$this, 'update_master_role'), 1, 1);
+		add_action( 'edit_user_profile', array( &$this, 'edit_user_profile' ) );
+		add_action( 'show_user_profile', array( &$this, 'show_user_profile' ) );
 
 		// add_action('init', array($this, 'modify_woocommerce_checkout'));
 	}
@@ -53,7 +58,7 @@ class Tansync_UI_Extensions
 			self::$_instance = new self( );
 		}
 		return self::$_instance;
-	} // End instance()	
+	} // End instance()
 
 // TWO WAYS TO EDIT USER FIELDS: MY_PROFILE AND CONTACT_METHODS
 
@@ -72,7 +77,7 @@ class Tansync_UI_Extensions
 	public function get_displayed_profile_fields(){
 		$fields = $this->get_synced_fields();
 		$filtered_fields = array_filter(
-			$fields, 
+			$fields,
 			function ($field){
 				$filter = isset($field->profile_display)?$field->profile_display:False;
 				return $filter;
@@ -138,7 +143,7 @@ class Tansync_UI_Extensions
 			'shipping_city',
 			'shipping_postcode',
 			'shipping_country',
-			'shipping_state'			
+			'shipping_state'
 		);
 	}
 
@@ -190,10 +195,68 @@ class Tansync_UI_Extensions
 		}
 	}
 
+	public function output_admin_profile_field_group($user, $title, $fields){
+		if( is_admin()){
+			$output = '<h3>' . $title . '</h3>';
+			$output .= '<table class="form-table">';
+			$output .= '<tbody>';
+			foreach ($fields as $key => $field) {
+				$label = isset($field['label']) ? $field['label'] : $key;
+				$value = isset($field['value']) ? $field['value'] : '';
+				$output .= '<tr class="'.$key.'-wrap">';
+				$output .= '<th><label for="'.$key.'">'. $label .' </label></th>';
+				$output .= '<td><input type="text" name="'.$key.'" id="'.$key.'" value="'. $value .'" class="regular-text ltr"></td>';
+				$output .= '</tr>';
+			}
+			$output .= '</tbody>';
+			$output .= '<table>';
+			echo $output;
+		}
+	}
+
+	public function output_master_role_admin($user) {
+		if(TANSYNC_DEBUG) error_log("output master role admin");
+		$master_role_field = $this->groups_roles->master_role_field;
+		$master_role = $this->groups_roles->get_user_master_role($user);
+		$master_role_title =  __( 'Master role',TANSYNC_DOMAIN );
+		$this->output_admin_profile_field_group($user, $master_role_title, array(
+			$master_role_field => array(
+				'value' => $master_role,
+				'label' => $master_role_title
+			)
+		));
+	}
+
+	public function edit_user_profile ($user) {
+		// error_log("calling edit_user_profile");
+		$this->output_master_role_admin($user);
+	}
+
+	public function show_user_profile ($user) {
+		// error_log("calling show_user_profile");
+		$this->output_master_role_admin($user);
+	}
+
+	public function update_master_role($user) {
+		if(TANSYNC_DEBUG) error_log("calling update_master_role");
+		$master_role_field = $this->groups_roles->naster_role_field;
+		if(TANSYNC_DEBUG) error_log(" -> master_role_field:".$master_role_field);
+		$post_filtered = filter_input_array( INPUT_POST );
+
+		if(isset($post_filtered[$master_role_field])){
+			if(TANSYNC_DEBUG) error_log("-> post is set ");
+			$master_role = $post_filtered[$master_role_field];
+			if(is_array($master_role)) $master_role = $master_role[0];
+			if(is_string($master_role)){
+				update_user_meta($user, $master_role_field, $master_role);
+			}
+		}
+	}
+
 	public function display_my_account_fields(){
 		$extra_fields = $this->get_displayed_profile_fields();
 		$user_id = get_current_user_id();
-		
+
 		if ($extra_fields and $user_id){
 			// TODO: make this modifiable in settings
 			echo "<h2>My Profile</h2>";
@@ -256,7 +319,7 @@ class Tansync_UI_Extensions
 			// if(TANSYNC_DEBUG) error_log("-> processing slug: $slug");
 			if(!$slug){
 				// if(TANSYNC_DEBUG) error_log("--> invalid slug: $slug");
-			} 
+			}
 			if( in_array($slug, array_keys($slugs))) {
 				// if(TANSYNC_DEBUG) error_log("--> already validated slug: $slug");
 			}
@@ -317,7 +380,7 @@ class Tansync_UI_Extensions
 			}
 		}
 
-		// do_action( 'woocommerce_edit_account_form' ); 
+		// do_action( 'woocommerce_edit_account_form' );
 		add_action(
 			'woocommerce_edit_account_form',
 			function() use ($extra_fields){
@@ -356,7 +419,7 @@ class Tansync_UI_Extensions
 						// error_log(" -> value:$value");
 					}
 					update_user_meta($user_id, $slug, $value);
-				}		
+				}
 			},
 			0
 		);
@@ -371,7 +434,7 @@ class Tansync_UI_Extensions
 	}
 
 	public function filter_acui_columns(){
-		$acui_columns = get_option("acui_columns"); 
+		$acui_columns = get_option("acui_columns");
 		// error_log("acui_columns: ".serialize($acui_columns));
 		// error_log(" -> acui is_array ". is_array($acui_columns));
 		// error_log(" -> acui not empty ". !empty($acui_columns));
