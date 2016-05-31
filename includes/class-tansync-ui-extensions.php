@@ -341,7 +341,13 @@ class Tansync_UI_Extensions
 			echo "<table>";
 			echo "<tbody>";
 			foreach ($extra_fields as $slug => $params) {
-				$label = isset($params->label)?$params->label:$slug;
+				if(isset($params->label)){
+					$label = $params->label;
+				} elseif (isset($params->sync_label)) {
+					$label = $params->sync_label;
+				} else {
+					$label = $slug;
+				}
 				$value = get_user_meta($user_id, $slug, true);
 				echo "<tr>";
 				echo "<th class='profile-label'>".$label."</th> ";
