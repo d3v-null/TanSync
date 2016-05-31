@@ -117,7 +117,7 @@ class TanSync_Settings {
 			add_action('shutdown', array(&$groups_roles, 'role_refresh'));
 			// $groups_roles->role_refresh();
 			return false;
-		} 
+		}
 	}
 
 	/**
@@ -238,7 +238,7 @@ class TanSync_Settings {
 					'default'		=> '',
 					'placeholder'	=> __( '{"<field_id_1>":<sync_params_1>, "<field_id_2>":<sync_params_2>, ...}', TANSYNC_DOMAIN ),
 					'callback'		=> array(&$this, 'validate_json')
-				),	
+				),
 				array(
 					'id'			=> 'sync_email_enable',
 					'label'			=> 'Enable Synchronization Email',
@@ -275,7 +275,7 @@ class TanSync_Settings {
 					'description'	=> __('Enter a list of page slugs and the conditions required to display those pages to the user', TANSYNC_DOMAIN),
 					'type'			=> 'textarea',
 					'placeholder'	=> __( '[{"slug":"page_slug_1", "Conditions":<page_conditions_1>}, {"slug":"page_slug_2", "condtions":<page_conditions_2>}]'),
-					'callback'		=> array(&$this, 'validate_json')					
+					'callback'		=> array(&$this, 'validate_json')
 				),
 			)
 		);
@@ -306,7 +306,7 @@ class TanSync_Settings {
 					'description'	=> __('Enter the mapping which is used to determine the users role', TANSYNC_DOMAIN),
 					'type'			=> 'textarea',
 					'callback'		=> array(&$this, 'validate_json'),
-					'placeholder'	=> 
+					'placeholder'	=>
 '{
 	"ADMIN":{
 		"roles":["administrator"],

@@ -37,8 +37,9 @@ class Tansync_UI_Extensions
 		add_action('init', array($this, 'modify_edit_my_account'));
 
 		add_action( 'profile_update', array(&$this, 'update_master_role'), 1, 1);
-		add_action( 'edit_user_profile', array( &$this, 'edit_user_profile' ) );
-		add_action( 'show_user_profile', array( &$this, 'show_user_profile' ) );
+		add_action( 'profile_update', array(&$this, 'update_admin_profile_fields'), 1, 1);
+		add_action( 'edit_user_profile', array( &$this, 'on_edit_user_profile' ) );
+		add_action( 'show_user_profile', array( &$this, 'on_show_user_profile' ) );
 
 		// add_action('init', array($this, 'modify_woocommerce_checkout'));
 	}
@@ -66,7 +67,7 @@ class Tansync_UI_Extensions
 		// $field_string = $this->settings->get_sync_settings();
 		// $fields = (array)json_decode($field_string);
 		$fields = $this->settings->get_sync_settings();
-		// if(WP_DEBUG) error_log("fields: ".serialize($fields));
+		// if(TANSYNC_DEBUG) error_log("fields: ".serialize($fields));
 		if($fields){
 			return $fields;
 		} else {
@@ -83,7 +84,7 @@ class Tansync_UI_Extensions
 				return $filter;
 			}
 		);
-		// if(WP_DEBUG) error_log("displayed fields:".serialize($filtered_fields));
+		// if(TANSYNC_DEBUG) error_log("displayed fields:".serialize($filtered_fields));
 		return $filtered_fields;
 	}
 
@@ -96,7 +97,7 @@ class Tansync_UI_Extensions
 				return $filter;
 			}
 		);
-		// if(WP_DEBUG) error_log("modified fields: ".serialize($filtered_fields));
+		// if(TANSYNC_DEBUG) error_log("modified fields: ".serialize($filtered_fields));
 		return $filtered_fields;
 	}
 
@@ -106,11 +107,33 @@ class Tansync_UI_Extensions
 			$fields,
 			function($field){
 				$filter = isset($field->contact_method)?$field->contact_method:False;
-				// if(WP_DEBUG) error_log("filtering ".serialize($field)." | ".$filter);
+				// if(TANSYNC_DEBUG) error_log("filtering ".serialize($field)." | ".$filter);
 				return $filter;
 			}
 		);
-		// if(WP_DEBUG) error_log("contact fields: ".serialize($filtered_fields));
+		// if(TANSYNC_DEBUG) error_log("contact fields: ".serialize($filtered_fields));
+		return $filtered_fields;
+	}
+
+	public function get_admin_profile_fields(){
+		$sync_fields = $this->get_synced_fields();
+		$core_fields = $this->get_user_edit_fields();
+		$filtered_fields = array();
+		foreach ($sync_fields as $field => $field_settings) {
+			// if(TANSYNC_DEBUG) error_log("Tansync_UI->get_admin_profile_fields: field:".serialize($field));
+			// if(TANSYNC_DEBUG) error_log("Tansync_UI->get_admin_profile_fields: field_settings:".serialize($field_settings));
+			$contact_method = isset($field_settings->contact_method)?$field_settings->contact_method:False;
+			// if(TANSYNC_DEBUG) error_log("Tansync_UI->get_admin_profile_fields: contact_method".serialize($contact_method));
+			$profile_display = isset($field_settings->profile_display)?$field_settings->profile_display:False;
+			// if(TANSYNC_DEBUG) error_log("Tansync_UI->get_admin_profile_fields: profile_display".serialize($profile_display));
+			$core_field = in_array($field, $core_fields);
+			// if(TANSYNC_DEBUG) error_log("Tansync_UI->get_admin_profile_fields: core_field".serialize($core_field));
+			if(!$contact_method and !$core_field and $profile_display ){
+				// if(TANSYNC_DEBUG) error_log("Tansync_UI->get_admin_profile_fields: not filtered");
+				$filtered_fields[$field] = get_object_vars($field_settings);
+			}
+		}
+		// if(TANSYNC_DEBUG) error_log("Tansync_UI->get_admin_profile_fields: ".serialize($filtered_fields));
 		return $filtered_fields;
 	}
 
@@ -227,50 +250,83 @@ class Tansync_UI_Extensions
 		));
 	}
 
-	public function edit_user_profile ($user) {
-		// error_log("calling edit_user_profile");
-		$this->output_master_role_admin($user);
+	public function output_admin_profile_group($user)
+	{
+		// if(TANSYNC_DEBUG) error_log("Tansync_UI->output_admin_profile_group");
+	 	$group_title =  __( 'Tansync Fields',TANSYNC_DOMAIN );
+		$admin_profile_fields = $this->get_admin_profile_fields();
+		// if(TANSYNC_DEBUG) error_log("Tansync_UI->output_admin_profile_group: user".serialize($user));
+		$user_id = $user->ID;
+		$userdata = $this->synchronization->get_userdata($user_id);
+		// if(TANSYNC_DEBUG) error_log("Tansync_UI->output_admin_profile_group: userdata".serialize($userdata));
+
+		$fields = array();
+		foreach ($admin_profile_fields as $key => $field_settings) {
+			// if(TANSYNC_DEBUG) error_log("Tansync_UI->output_admin_profile_group: key".serialize($key));
+			// if(TANSYNC_DEBUG) error_log("Tansync_UI->output_admin_profile_group: field_settings".serialize($field_settings));
+			$fielddata = array();
+			if(isset($field_settings['sync_label'])){
+				// if(TANSYNC_DEBUG) error_log("Tansync_UI->output_admin_profile_group: label".serialize($field_settings['sync_label']));
+				$fielddata['label'] = $field_settings['sync_label'];
+			}
+			if(isset($userdata[$key])){
+				$value = $userdata[$key];
+				if(is_array($value)){
+					$value = $value[0];
+				}
+				// if(TANSYNC_DEBUG) error_log("Tansync_UI->output_admin_profile_group: value".serialize($value));
+				$fielddata['value'] = $value;
+			}
+			// if(TANSYNC_DEBUG) error_log("Tansync_UI->output_admin_profile_group: fielddata".serialize($fielddata));
+			$fields[$key] = $fielddata;
+		}
+		$this->output_admin_profile_field_group($user, $group_title, $fields);
 	}
 
-	public function show_user_profile ($user) {
+	public function on_edit_user_profile ($user) {
+		// error_log("calling edit_user_profile");
+		// $this->output_master_role_admin($user);
+		$this->output_admin_profile_group($user);
+	}
+
+	public function on_show_user_profile ($user) {
 		// error_log("calling show_user_profile");
-		$this->output_master_role_admin($user);
+		// $this->output_master_role_admin($user);
+		$this->output_admin_profile_group($user);
 	}
 
 	public function handle_update_fields($user, $fields) {
+		if(TANSYNC_DEBUG) error_log("Tansync_UI->handle_update_fields");
+
 		$post_filtered = filter_input_array( INPUT_POST );
 
-		foreach ($fields as $key) {
-			if(isset($post_filtered[$key])){
-				if(TANSYNC_DEBUG) error_log("-> post is set ");
-				$master_role = $post_filtered[$key];
-				if(is_array($master_role)) $master_role = $master_role[0];
-				if(is_string($master_role)){
-					update_user_meta($user, $key, $master_role);
+		foreach ($fields as $field => $field_settings) {
+			if(TANSYNC_DEBUG) error_log("Tansync_UI->handle_update_fields: field:".serialize($field));
+			if(TANSYNC_DEBUG) error_log("Tansync_UI->handle_update_fields: field_settings:".serialize($field_settings));
+			if(isset($post_filtered[$field])){
+				if(TANSYNC_DEBUG) error_log("Tansync_UI->handle_update_fields: post is set ");
+				$post_value = $post_filtered[$field];
+				if(TANSYNC_DEBUG) error_log("Tansync_UI->handle_update_fields: post_value:".serialize($post_value));
+				if(is_array($post_value)) $post_value = $post_value[0];
+				if(is_string($post_value)){
+
+					update_user_meta($user, $field, $post_value);
 				}
 			}
 		}
-
-
 	}
 
 	public function update_master_role($user) {
 		if(TANSYNC_DEBUG) error_log("calling update_master_role");
 		$master_role_field = $this->groups_roles->master_role_field;
 		$this->handle_update_fields($user, array(
-			$master_role_field
+			$master_role_field => array()
 		));
-		// if(TANSYNC_DEBUG) error_log(" -> master_role_field:".$master_role_field);
-		// $post_filtered = filter_input_array( INPUT_POST );
-		//
-		// if(isset($post_filtered[$master_role_field])){
-		// 	if(TANSYNC_DEBUG) error_log("-> post is set ");
-		// 	$master_role = $post_filtered[$master_role_field];
-		// 	if(is_array($master_role)) $master_role = $master_role[0];
-		// 	if(is_string($master_role)){
-		// 		update_user_meta($user, $master_role_field, $master_role);
-		// 	}
-		// }
+	}
+
+	public function update_admin_profile_fields($user){
+		$admin_profile_fields = $this->get_admin_profile_fields();
+		$this->handle_update_fields($user, $admin_profile_fields);
 	}
 
 	public function display_my_account_fields(){
