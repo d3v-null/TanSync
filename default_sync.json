@@ -44,5 +44,6 @@
 "twitter": {"contact_method": 1, "profile_display": 1, "profile_modify": 1, "sync_label": "Twitter Username", "sync_ingress": 1, "sync_egress": 1},
 "gplus": {"contact_method": 1, "profile_display": 1, "profile_modify": 1, "sync_label": "Google+ Username", "sync_ingress": 1, "sync_egress": 1},
 "instagram": {"contact_method": 1, "profile_display": 1, "profile_modify": 1, "sync_label": "Instagram", "sync_ingress": 1, "sync_egress": 1},
-"mailing_list": {"core": 1, "sync_egress": 1, "sync_label": "Added to mailing list", "sync_ingress": 1}
+"mailing_list": {"sync_egress": 1, "sync_label": "Added to mailing list", "sync_ingress": 1},
+"tans_per_wk": {"sync_label":"Tans Per Week", "sync_ingress":1, "sync_egress":1, "profile_display":1}
 }
