@@ -72,9 +72,49 @@ class Tansync_API
         // add_filter( 'xmlrpc_methods', array(&$this, 'new_xmlrpc_methods'), 0, 1);
         add_action( 'rest_api_init', array(&$this, 'register_rest_methods') );
         add_action( 'wp_json_server_before_serve', array(&$this, 'on_wp_json_server_before_serve') );
+        $this->register_expose_meta();
+    }
+
+    public function get_expose_meta_fields(){
+        $sync_fields = $this->settings->get_sync_settings();
+        $filtered_fields = array();
+        foreach ($sync_fields as $field => $field_settings) {
+            // if(TANSYNC_DEBUG) error_log("Tansync_UI->get_admin_profile_fields: field:".serialize($field));
+            $expose_meta = isset($field_settings->expose_meta)?$field_settings->expose_meta:false;
+            // if(TANSYNC_DEBUG) error_log("Tansync_UI->get_admin_profile_fields: expose_meta".serialize($expose_meta));
+            if ($expose_meta) {
+                // if(TANSYNC_DEBUG) error_log("Tansync_UI->get_admin_profile_fields: not filtered");
+                $filtered_fields[$field] = get_object_vars($field_settings);
+            }
+        }
+        return $filtered_fields;
+    }
+
+    function register_expose_meta(){
+        if(TANSYNC_DEBUG) error_log("Tansync_API->register_expose_meta");
+
+        if (function_exists('register_meta')) {
+            // Register user meta fields
+            $expose_meta_fields = $this->get_expose_meta_fields();
+            if(TANSYNC_DEBUG) error_log("Tansync_API->register_expose_meta | fields: ".serialize($expose_meta_fields));
+
+            foreach ($expose_meta_fields as $field => $field_settings) {
+                $sync_label = isset($field_settings->sync_label)?$field_settings->sync_label:$field;
+
+                register_meta('user', $field, array(
+                    'type'=>'string',
+                    'description'=> $sync_label,
+                    'single'=>true,
+                    'show_in_rest'=>true
+                ));
+            }
+        } else {
+            if(TANSYNC_DEBUG) error_log("Tansync_API->register_expose_meta | register_meta DNE");
+        }
     }
 
     function wp_json_server_before_serve(){
+
         // if (defined('XMLRPC_REQUEST') and XMLRPC_REQUEST){
         //     $this->synchronization->cancel_queued_updates();
         // }

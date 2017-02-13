@@ -137,7 +137,7 @@ class Tansync_UI_Extensions
 		return $filtered_fields;
 	}
 
-	public function get_user_edit_fields(){
+	public function get_default_wp_fields(){
 		return array(
 			'username',
 			'user_email',
@@ -146,28 +146,37 @@ class Tansync_UI_Extensions
 			'last_name',
 			'nickname',
 			'display_name',
-			'description',
-			'billing_first_name',
-			'billing_last_name',
-			'billing_company',
-			'billing_address_1',
-			'billing_address_2',
-			'billing_city',
-			'billing_postcode',
-			'billing_country',
-			'billing_state',
-			'billing_phone',
-			'billing_email',
-			'shipping_first_name',
-			'shipping_last_name',
-			'shipping_company',
-			'shipping_address_1',
-			'shipping_address_2',
-			'shipping_city',
-			'shipping_postcode',
-			'shipping_country',
-			'shipping_state'
+			'description'
 		);
+	}
+
+	public function get_user_edit_fields(){
+		$fields = $this->get_default_wp_fields();
+		if (class_exists('WooCommerce')) {
+			$fields = array_merge($fields, array(
+				'billing_first_name',
+				'billing_last_name',
+				'billing_company',
+				'billing_address_1',
+				'billing_address_2',
+				'billing_city',
+				'billing_postcode',
+				'billing_country',
+				'billing_state',
+				'billing_phone',
+				'billing_email',
+				'shipping_first_name',
+				'shipping_last_name',
+				'shipping_company',
+				'shipping_address_1',
+				'shipping_address_2',
+				'shipping_city',
+				'shipping_postcode',
+				'shipping_country',
+				'shipping_state'
+			));
+		}
+		return $fields;
 	}
 
 	public function get_my_account_fields(){
@@ -178,7 +187,7 @@ class Tansync_UI_Extensions
 			'email',
 		);
 
-		apply_filters( 'tansync_get_my_account_fields', $fields	);
+		apply_filters('tansync_get_my_account_fields', $fields);
 
 		return $fields;
 	}
