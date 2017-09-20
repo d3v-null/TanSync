@@ -33,7 +33,7 @@
 "shipping_country": {"sync_egress": 1, "sync_label": "Home Country", "sync_ingress": 1, "expose_meta":1},
 "myob_customer_card_id": {"sync_egress": 0, "sync_label": "MYOB Customer Card ID", "sync_ingress": 1, "expose_meta":1},
 "client_grade": {"sync_egress": 0, "profile_display": 1, "sync_label": "Client Grade", "sync_ingress": 1, "expose_meta":1},
-"direct_brand": {"sync_egress": 0, "sync_label": "Direct Brand", "sync_ingress": 1, "expose_meta":1},
+"direct_brand": {"sync_egress": 0, "sync_label": "Direct Brand", "sync_ingress": 1, "profile_display": 1, "expose_meta":1},
 "agent": {"sync_egress": 0, "profile_display": 1, "sync_label": "Agent", "sync_ingress": 1, "expose_meta":1},
 "user_url": {"core": 1, "sync_egress": 1, "sync_label": "Web Site", "sync_ingress": 1},
 "abn": {"profile_modify": 1, "sync_egress": 1, "profile_display": 1, "sync_label": "ABN", "sync_ingress": 1, "expose_meta":1},
