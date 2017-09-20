@@ -346,8 +346,7 @@ class Tansync_UI_Extensions
 			// TODO: make this modifiable in settings
 			echo "<h2>My Profile</h2>";
 			echo "<p class='user-profile-fields'>";
-			// TODO: Add class
-			echo "<table>";
+			echo '<table class="profile-table">';
 			echo "<tbody>";
 			foreach ($extra_fields as $slug => $params) {
 				if(isset($params->label)){
